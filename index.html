@@ -1001,7 +1001,25 @@ async function runAI() {
   document.getElementById('captionOut').value='';
   document.getElementById('htSection').style.display='none';
   startTips();
-  var prompt='You are an expert social media manager for "Urban Leaf Sri Lanka" a premium plant business.\n\nGenerate a caption and hashtags for:\n- Plant: '+plant+'\n- Details: '+cond+'\n- Platform: '+platMap[S.platform]+'\n- Tone: '+toneMap[S.tone]+'\n- Hashtags: '+htMap[S.hashtag]+'\n\nRules:\n1. Include island-wide courier available in Sri Lanka\n2. Bank transfer only, no COD\n3. Tell buyers to inbox for details\n4. Use plant emojis\n5. Authentic for Sri Lankan plant community\n\nReply ONLY with valid JSON, no markdown:\n{"caption":"caption text here","hashtags":"#tag1 #tag2"}';
+  var toneInstr = {
+    viral: 'Write an exciting attention-grabbing caption. Strong hook. Relevant plant emojis.',
+    professional: 'Write a professional trustworthy elegant caption.',
+    sinhala: 'Write in natural Sinhala+English mix exactly like Sri Lankan plant sellers write on Facebook. Example: Sakunthala Flash pawath nethi pala! Island-wide delivery. Bank transfer pamanak. Inbox karanna. NOT formal Sinhala - casual natural mix.',
+    short: 'Very short punchy caption. Max 4 lines only.'
+  };
+  var platInstr = {
+    facebook: 'Facebook post for Sri Lankan plant shop.',
+    instagram: 'Instagram caption with storytelling.',
+    whatsapp: 'Short direct WhatsApp status.'
+  };
+  var prompt =
+    'You are a social media expert for Urban Leaf Sri Lanka plant business.' +
+    ' Write a caption for: Plant=' + plant + ', Details=' + cond + '.' +
+    ' Platform: ' + platInstr[S.platform] +
+    ' Tone: ' + toneInstr[S.tone] +
+    ' Hashtags: ' + htMap[S.hashtag] +
+    ' RULES: 1) Island-wide courier available in Sri Lanka. 2) Bank transfer only NO COD. 3) Inbox for details. 4) Use plant emojis. 5) Use ONLY the plant name and details given - do not invent details.' +
+    ' Respond ONLY in this exact JSON format no extra text: {"caption":"caption here","hashtags":"#tag1 #tag2"}';
   try {
     var raw=await callAI(prompt);
     var clean=raw.replace(/\x60\x60\x60json/g,'').replace(/\x60\x60\x60/g,'').trim();
@@ -1015,7 +1033,7 @@ async function runAI() {
 async function regenHt() {
   var plant=document.getElementById('plantName').value.trim()||'Anthurium Plant';
   var el=document.getElementById('htOut'); el.value='Regenerating...';
-  try{ var raw=await callAI('Generate '+htMap[S.hashtag]+' for Sri Lankan plant seller posting about: '+plant+'. Return ONLY hashtags separated by spaces, no other text.'); el.value=raw.trim(); }
+  try{ var raw=await callAI('Generate ' + htMap[S.hashtag] + ' for a Sri Lankan plant seller selling: ' + plant + '. Write ONLY the hashtags separated by spaces. No explanation, no extra text. Just hashtags.'); el.value=raw.trim(); }
   catch(e){ el.value='Error: '+e.message; }
 }
 
