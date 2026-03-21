@@ -237,7 +237,7 @@ textarea{resize:none;}
   color:var(--acc);font-size:10px;font-weight:600;padding:2px 7px;border-radius:9px;}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
 .key-box{background:rgba(34,197,94,.06);border:1px solid var(--grn-dim);border-radius:12px;padding:13px;margin-bottom:12px;}
-.key-box-title{font-size:12px;font-weight:600;color:var(--acc);display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.key-box-title{font-size:12px;font-weight:600;color:var(--acc);display:flex;align-items:center;gap:6px;margin-bottom:8px;}
 .key-box-note{font-size:11px;color:var(--txt2);line-height:1.5;margin-bottom:9px;}
 .key-row{display:flex;gap:8px;align-items:center;}
 .key-row input{flex:1;margin-bottom:0;font-family:monospace;font-size:12px;background:var(--bg);border:1px solid var(--bord);border-radius:9px;padding:9px 11px;color:var(--txt);outline:none;}
@@ -247,6 +247,9 @@ textarea{resize:none;}
 .key-status.ok{color:var(--acc);}
 .key-status.err{color:#f87171;}
 .key-toggle{background:none;border:none;color:var(--txt2);cursor:pointer;padding:0 4px;font-size:13px;flex-shrink:0;}
+.provider-sel{width:100%;background:var(--bg);border:1px solid var(--bord);border-radius:9px;padding:9px 11px;color:var(--txt);font-family:inherit;font-size:13px;outline:none;margin-bottom:9px;cursor:pointer;}
+.provider-sel:focus{border-color:var(--grn);}
+.key-link{font-size:11px;color:var(--acc);text-decoration:none;display:inline-flex;align-items:center;gap:4px;margin-bottom:8px;}
 </style>
 </head>
 <body>
@@ -461,12 +464,27 @@ textarea{resize:none;}
       </div>
       <div id="postBody" class="card-body">
 
-        <!-- GROQ API KEY -->
+        <!-- AI PROVIDER + KEY -->
         <div class="key-box">
-          <div class="key-box-title"><i class="fa-solid fa-key"></i> Groq API Key</div>
-          <div class="key-box-note">console.groq.com &#8594; API Keys &#8594; Free key generate කරන්න. Browser ෙ save වෙනවා.</div>
+          <div class="key-box-title"><i class="fa-solid fa-robot"></i> AI Provider &amp; Key</div>
+
+          <div class="fl">Provider</div>
+          <select class="provider-sel" id="aiProvider" onchange="onProviderChange()">
+            <option value="groq">Groq (Free — llama-3.1)</option>
+            <option value="gemini">Google Gemini (Free)</option>
+            <option value="openrouter">OpenRouter (Free models)</option>
+            <option value="anthropic">Anthropic (Claude)</option>
+            <option value="openai">OpenAI (ChatGPT)</option>
+          </select>
+
+          <a class="key-link" id="keyLink" href="https://console.groq.com/keys" target="_blank">
+            <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:10px"></i>
+            <span id="keyLinkTxt">Free key: console.groq.com/keys</span>
+          </a>
+
+          <div class="fl">API Key</div>
           <div class="key-row">
-            <input type="password" id="groqKey" placeholder="gsk_..." autocomplete="off">
+            <input type="password" id="aiKey" placeholder="gsk_..." autocomplete="off">
             <button class="key-toggle" onclick="toggleKeyVis()" title="Show/hide"><i class="fa-solid fa-eye" id="eyeIcon"></i></button>
             <button class="key-save" onclick="saveKey()">Save</button>
           </div>
@@ -710,10 +728,15 @@ imgPanel.addEventListener('click', function() {
    IMAGE UPLOAD
    ============================================================ */
 window.addEventListener('DOMContentLoaded', function() {
-  /* Restore saved Groq key */
-  var savedKey = localStorage.getItem('groq_key');
+  /* Restore saved provider + key */
+  var savedProvider = localStorage.getItem('ai_provider');
+  var savedKey      = localStorage.getItem('ai_key');
+  if (savedProvider) {
+    document.getElementById('aiProvider').value = savedProvider;
+    onProviderChange();
+  }
   if (savedKey) {
-    document.getElementById('groqKey').value = savedKey;
+    document.getElementById('aiKey').value = savedKey;
     document.getElementById('keyOk').style.display = 'flex';
     setTimeout(function(){ document.getElementById('keyOk').style.display='none'; }, 2000);
   }
@@ -881,16 +904,34 @@ var platMap={facebook:'Facebook plant selling page in Sri Lanka',instagram:'Inst
 var toneMap={viral:'Super viral and exciting with emojis and attention-grabbing hooks.',professional:'Professional, trustworthy and elegant tone.',sinhala:'Natural Sinhala and English mix, like real Sri Lankan plant sellers write.',short:'Very short and punchy, max 4 lines, high impact only.'};
 var htMap={english:'15-20 relevant English hashtags for maximum reach',mixed:'Mix of English and transliterated Sinhala hashtags like #LankaFlora #SriLankaPlants',niche:'10 highly targeted niche plant enthusiast hashtags'};
 
-/* ---- API KEY HELPERS ---- */
+/* ---- PROVIDER CONFIG ---- */
+var PROVIDERS = {
+  groq:       { url:'https://api.groq.com/openai/v1/chat/completions',      model:'llama-3.1-8b-instant',        type:'openai', link:'https://console.groq.com/keys',          linkTxt:'Free key: console.groq.com/keys',          ph:'gsk_...' },
+  gemini:     { url:'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent', model:'', type:'gemini', link:'https://aistudio.google.com/app/apikey', linkTxt:'Free key: aistudio.google.com',             ph:'AIza...' },
+  openrouter: { url:'https://openrouter.ai/api/v1/chat/completions',        model:'meta-llama/llama-3.1-8b-instruct:free', type:'openai', link:'https://openrouter.ai/keys', linkTxt:'Free key: openrouter.ai/keys',              ph:'sk-or-...' },
+  anthropic:  { url:'https://api.anthropic.com/v1/messages',                model:'claude-haiku-4-5-20251001',   type:'anthropic', link:'https://console.anthropic.com',         linkTxt:'console.anthropic.com ($5 free)',          ph:'sk-ant-...' },
+  openai:     { url:'https://api.openai.com/v1/chat/completions',           model:'gpt-4o-mini',                 type:'openai', link:'https://platform.openai.com/api-keys',    linkTxt:'platform.openai.com/api-keys',            ph:'sk-...' }
+};
+
+function onProviderChange() {
+  var p = PROVIDERS[document.getElementById('aiProvider').value];
+  document.getElementById('keyLink').href       = p.link;
+  document.getElementById('keyLinkTxt').textContent = p.linkTxt;
+  document.getElementById('aiKey').placeholder  = p.ph;
+  document.getElementById('keyOk').style.display  = 'none';
+  document.getElementById('keyErr').style.display = 'none';
+}
+
 function saveKey() {
-  var k = document.getElementById('groqKey').value.trim();
+  var provider = document.getElementById('aiProvider').value;
+  var k = document.getElementById('aiKey').value.trim();
   if (!k) { showKeyStatus('err','Key empty!'); return; }
-  if (!k.startsWith('gsk_')) { showKeyStatus('err','Key must start with gsk_'); return; }
-  localStorage.setItem('groq_key', k);
+  localStorage.setItem('ai_provider', provider);
+  localStorage.setItem('ai_key', k);
   showKeyStatus('ok', null);
 }
 function getKey() {
-  return document.getElementById('groqKey').value.trim() || localStorage.getItem('groq_key') || '';
+  return document.getElementById('aiKey').value.trim() || localStorage.getItem('ai_key') || '';
 }
 function showKeyStatus(type, msg) {
   var ok  = document.getElementById('keyOk');
@@ -901,7 +942,7 @@ function showKeyStatus(type, msg) {
   if (type==='ok') setTimeout(function(){ ok.style.display='none'; }, 3000);
 }
 function toggleKeyVis() {
-  var inp  = document.getElementById('groqKey');
+  var inp  = document.getElementById('aiKey');
   var icon = document.getElementById('eyeIcon');
   if (inp.type==='password') {
     inp.type='text'; icon.className='fa-solid fa-eye-slash';
@@ -911,20 +952,44 @@ function toggleKeyVis() {
 }
 
 async function callAI(prompt) {
-  var key = getKey();
-  if (!key) throw new Error('Groq API key නෑ. AI Post Generator card ෙ key paste කරන්න!');
-  var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST',
-    headers: {'Content-Type':'application/json','Authorization':'Bearer '+key},
-    body: JSON.stringify({
-      model: 'llama-3.1-8b-instant',
-      max_tokens: 1024,
-      messages: [{role:'user', content: prompt}]
-    })
-  });
-  var data = await res.json();
-  if (data.error) throw new Error(data.error.message);
-  return data.choices[0].message.content || '';
+  var key      = getKey();
+  var provider = document.getElementById('aiProvider').value;
+  var cfg      = PROVIDERS[provider];
+  if (!key) throw new Error('API key නෑ! Provider select කරලා key paste කරන්න.');
+
+  var res, data, text;
+
+  if (cfg.type === 'gemini') {
+    res  = await fetch(cfg.url + '?key=' + key, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({contents:[{parts:[{text:prompt}]}]})
+    });
+    data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    text = data.candidates[0].content.parts[0].text;
+
+  } else if (cfg.type === 'anthropic') {
+    res  = await fetch(cfg.url, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},
+      body: JSON.stringify({model:cfg.model, max_tokens:1024, messages:[{role:'user',content:prompt}]})
+    });
+    data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    text = (data.content||[]).map(function(b){return b.text||'';}).join('');
+
+  } else {
+    res  = await fetch(cfg.url, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','Authorization':'Bearer '+key},
+      body: JSON.stringify({model:cfg.model, max_tokens:1024, messages:[{role:'user',content:prompt}]})
+    });
+    data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    text = data.choices[0].message.content || '';
+  }
+  return text;
 }
 
 async function runAI() {
