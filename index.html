@@ -1,551 +1,396 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Urban Leaf - Pro Social Media Kit</title>
+    <title>Urban Leaf - Pro Editor</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/piexifjs/1.0.6/piexif.js" defer></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Dancing+Script:wght@700&family=Montserrat:wght@700&family=Oswald:wght@500&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+    
     <style>
-        #floatingPreview {
-            position: fixed;
-            bottom: 80px;
-            left: 12px;
-            z-index: 100;
-            width: 100px;
-            height: 100px;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.25);
-            border: 2px solid #16a34a;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-            background: #000;
-        }
-        #floatingPreview.visible {
-            opacity: 1;
-            pointer-events: auto;
-        }
-        #floatingPreview canvas {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        #floatingPreviewLabel {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(22,163,74,0.85);
-            color: white;
-            font-size: 9px;
-            text-align: center;
-            padding: 2px 0;
-            font-weight: bold;
-            letter-spacing: 0.3px;
-        }
+        body { background-color: #0f1115; color: #fff; overscroll-behavior-y: none; }
+        .glass-panel { background: rgba(30, 34, 42, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid rgba(255, 255, 255, 0.05); }
+        .tab-btn.active { color: #22c55e; border-top: 2px solid #22c55e; background: linear-gradient(180deg, rgba(34, 197, 94, 0.1) 0%, transparent 100%); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { transform: translateY(15px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        /* Mobile height fixes */
+        #canvas-container { height: calc(100vh - 350px); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; padding: 15px;}
+        canvas { max-width: 100%; max-height: 100%; object-fit: contain; box-shadow: 0 10px 40px rgba(0,0,0,0.6); border-radius: 6px; }
+        
+        input[type=range] { -webkit-appearance: none; background: rgba(255,255,255,0.1); height: 4px; border-radius: 2px; outline: none; margin: 10px 0;}
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; background: #22c55e; border-radius: 50%; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        select, input[type=text], textarea { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 8px; padding: 12px; width: 100%; outline: none; transition: 0.2s;}
+        select:focus, input[type=text]:focus, textarea:focus { border-color: #22c55e; background: rgba(255,255,255,0.08); }
+        select option { background: #1f2937; color: white; padding: 10px; }
+        
+        /* Font classes for the previews */
+        .font-montserrat { font-family: 'Montserrat', sans-serif; }
+        .font-playfair { font-family: 'Playfair Display', serif; }
+        .font-dancing { font-family: 'Dancing Script', cursive; }
+        .font-caveat { font-family: 'Caveat', cursive; }
+        .font-oswald { font-family: 'Oswald', sans-serif; }
     </style>
 </head>
+<body class="font-sans antialiased overflow-hidden flex flex-col h-screen select-none">
 
-<body class="bg-gray-100 min-h-screen text-gray-800 font-sans pb-24">
-
-    <header class="bg-white p-4 shadow-sm border-b border-gray-100 flex items-center justify-between sticky top-0 z-50">
-        <div class="flex items-center gap-3">
-            <div class="bg-green-600 text-white p-2.5 rounded-full h-10 w-10 flex items-center justify-center">
-                <i class="fa-solid fa-leaf text-lg"></i>
+    <!-- Header -->
+    <header class="p-4 flex items-center justify-between z-10 glass-panel border-b border-t-0">
+        <div class="flex items-center gap-2">
+            <div class="bg-gradient-to-tr from-green-600 to-green-400 w-8 h-8 rounded-full flex items-center justify-center shadow-lg shadow-green-900/50">
+                <i class="fa-solid fa-leaf text-black text-sm"></i>
             </div>
             <div>
-                <h1 class="text-xl font-extrabold text-green-800">Urban Leaf <span
-                        class="text-gray-500 font-medium text-sm">Studio</span></h1>
-                <p class="text-xs text-gray-500">Watermark, Presets & Post</p>
+                <h1 class="text-sm font-bold tracking-widest text-white uppercase mt-0.5">Urban Leaf</h1>
+                <p class="text-[10px] text-gray-400 uppercase tracking-widest">Pro Studio</p>
             </div>
         </div>
-        <div class="flex gap-2">
-            <label for="baseImage"
-                class="bg-gray-800 text-white p-2.5 rounded-full shadow hover:bg-black cursor-pointer flex items-center justify-center w-10 h-10">
-                <i class="fa-solid fa-camera"></i>
-            </label>
-        </div>
+        <label for="baseImage" class="bg-gray-800 hover:bg-gray-700 active:bg-gray-600 text-white w-10 h-10 flex border border-gray-700 items-center justify-center rounded-xl shadow-lg cursor-pointer transition">
+            <i class="fa-solid fa-camera"></i>
+        </label>
+        <input type="file" id="baseImage" accept="image/*" class="hidden">
     </header>
 
-    <main class="max-w-4xl mx-auto p-4 space-y-6">
+    <!-- Canvas Area (Fixed top area, no scrolling) -->
+    <div id="canvas-container" class="flex-1 w-full relative bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+PHBhdGggZD0iTTAgMGgyMHYyMEgwem0xMCAwdjEwSDBWMHpNMCAxMGgxMHYxMEgwem0xMCAwaDEwdjEwSDEweiIgZmlsbD0iI2ZmZiIgZmlsbC1vcGFjaXR5PSIuMDMiLz48L3N2Zz4=')]">
+        
+        <label id="uploadPrompt" for="baseImage" class="absolute inset-0 flex flex-col items-center justify-center cursor-pointer text-gray-500 z-10 p-6 text-center">
+            <div class="w-20 h-20 bg-gray-800/80 rounded-2xl border border-gray-700 flex items-center justify-center mb-4 shadow-2xl backdrop-blur">
+                <i class="fa-solid fa-cloud-arrow-up text-3xl text-green-500"></i>
+            </div>
+            <p class="font-medium text-gray-300">Tap to load your photo</p>
+            <p class="text-xs text-gray-500 mt-2">Supports JPG, PNG</p>
+        </label>
+        
+        <canvas id="canvas" class="z-20 hidden"></canvas>
+    </div>
 
-        <input type="file" id="baseImage" accept="image/*" class="hidden">
-        <input type="file" id="watermarkImage" accept="image/png" class="hidden">
-
-        <div id="previewBox"
-            class="bg-white p-2 rounded-xl shadow-lg border border-gray-200 flex flex-col justify-center items-center relative overflow-hidden shadow-inner rounded-t-none"
-            style="min-height: 300px;">
-
-            <label id="uploadLabel" for="baseImage"
-                class="text-gray-400 text-sm text-center flex flex-col items-center justify-center gap-3 p-12 cursor-pointer w-full h-full absolute inset-0 bg-white z-10 hover:bg-gray-50">
-                <i class="fa-regular fa-image text-5xl text-gray-300"></i>
-                <div>Tap here to upload your plant photo.</div>
-            </label>
-
-            <canvas id="canvas" class="max-w-full object-contain hidden shadow-xl rounded z-20" style="max-height: 65vh; display: none;"></canvas>
+    <!-- Bottom Editing Panel (Sleek Drawer shape) -->
+    <div class="glass-panel h-[300px] flex flex-col z-30 absolute bottom-0 left-0 right-0 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+        
+        <!-- Pull Handle Graphic -->
+        <div class="w-full flex justify-center pt-3 pb-1">
+            <div class="w-12 h-1 bg-gray-600 rounded-full"></div>
         </div>
 
-        <div class="space-y-4">
-
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <button type="button" onclick="toggleCard('filterCard')"
-                    class="w-full flex items-center justify-between p-5 hover:bg-gray-50 focus:outline-none">
-                    <div class="flex items-center gap-3">
-                        <i class="fa-solid fa-wand-magic-sparkles text-xl text-green-600"></i>
-                        <span class="text-lg font-bold">1. Natural Plant Presets</span>
-                    </div>
-                    <i id="filterCardIcon" class="fa-solid fa-chevron-down text-gray-400"></i>
-                </button>
-                <div id="filterCardContent" class="hidden p-5 pt-0 space-y-5 border-t border-gray-100">
-
-                    <p class="text-sm font-bold text-gray-600 uppercase">Select a Preset for Nature</p>
-                    <div class="grid grid-cols-2 gap-3">
-                        <button type="button" onclick="applyPreset(this, 'natural')"
-                            class="preset-btn p-4 border-2 border-gray-200 rounded-xl bg-gray-50 flex flex-col items-center gap-1 hover:border-green-300 focus:outline-none">
-                            <i class="fa-solid fa-leaf text-2xl text-green-700"></i>
-                            <span class="text-xs font-semibold">Natural Boost</span>
-                        </button>
-                        <button type="button" onclick="applyPreset(this, 'greens')"
-                            class="preset-btn p-4 border-2 border-gray-200 rounded-xl bg-gray-50 flex flex-col items-center gap-1 hover:border-green-300 focus:outline-none">
-                            <i class="fa-solid fa-tree text-2xl text-green-800"></i>
-                            <span class="text-xs font-semibold">Lush Greens</span>
-                        </button>
-                        <button type="button" onclick="applyPreset(this, 'blooms')"
-                            class="preset-btn p-4 border-2 border-gray-200 rounded-xl bg-gray-50 flex flex-col items-center gap-1 hover:border-green-300 focus:outline-none">
-                            <i class="fa-solid fa-spa text-2xl text-pink-600"></i>
-                            <span class="text-xs font-semibold">Vibrant Blooms</span>
-                        </button>
-                        <button type="button" onclick="applyPreset(this, 'rustic')"
-                            class="preset-btn p-4 border-2 border-gray-200 rounded-xl bg-gray-50 flex flex-col items-center gap-1 hover:border-green-300 focus:outline-none">
-                            <i class="fa-solid fa-cubes text-2xl text-gray-500"></i>
-                            <span class="text-xs font-semibold">Rustic Clean</span>
-                        </button>
-                    </div>
-
-                    <details class="bg-gray-50 p-4 rounded-xl">
-                        <summary
-                            class="text-xs font-bold text-gray-600 cursor-pointer flex justify-between items-center focus:outline-none">
-                            Fine-tune Advanced <i class="fa-solid fa-sliders text-gray-400"></i></summary>
-                        <div class="space-y-4 pt-4">
-                            <div>
-                                <label class="text-xs text-gray-600 flex justify-between mb-1">Brightness <span
-                                        id="brightVal">100%</span></label>
-                                <input type="range" id="filterBright" min="50" max="150" value="100"
-                                    class="w-full h-2 accent-green-600 rounded-full">
-                            </div>
-                            <div>
-                                <label class="text-xs text-gray-600 flex justify-between mb-1">Contrast <span
-                                        id="contrastVal">100%</span></label>
-                                <input type="range" id="filterContrast" min="50" max="150" value="100"
-                                    class="w-full h-2 accent-green-600 rounded-full">
-                            </div>
-                            <div>
-                                <label class="text-xs text-gray-600 flex justify-between mb-1">Saturation <span
-                                        id="satVal">100%</span></label>
-                                <input type="range" id="filterSat" min="0" max="200" value="100"
-                                    class="w-full h-2 accent-green-600 rounded-full">
-                            </div>
-                        </div>
-                    </details>
+        <!-- Tabs content area -->
+        <div class="flex-1 overflow-y-auto px-6 py-2 pb-6 scrollbar-hide" id="controlPanels">
+            
+            <!-- ADJUST TAB -->
+            <div id="tab-adjust" class="tab-content active space-y-5">
+                <!-- Mini carousel of presets -->
+                <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide -mx-2 px-2">
+                    <button onclick="applyPreset('none')" class="flex-shrink-0 px-5 py-2.5 rounded-xl border border-gray-700 bg-gray-800 text-sm font-medium hover:bg-gray-700 transition">Reset</button>
+                    <button onclick="applyPreset('natural')" class="flex-shrink-0 px-5 py-2.5 rounded-xl border border-green-600/50 bg-gradient-to-br from-green-900/40 to-transparent text-green-400 text-sm font-medium"><i class="fa-solid fa-leaf mr-1"></i> Natural</button>
+                    <button onclick="applyPreset('vibrant')" class="flex-shrink-0 px-5 py-2.5 rounded-xl border border-pink-600/50 bg-gradient-to-br from-pink-900/40 to-transparent text-pink-400 text-sm font-medium"><i class="fa-solid fa-spa mr-1"></i> Vibrant</button>
+                    <button onclick="applyPreset('moody')" class="flex-shrink-0 px-5 py-2.5 rounded-xl border border-blue-600/50 bg-gradient-to-br from-blue-900/40 to-transparent text-blue-400 text-sm font-medium"><i class="fa-regular fa-moon mr-1"></i> Moody</button>
                 </div>
-            </div>
-
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <button type="button" onclick="toggleCard('wmCard')"
-                    class="w-full flex items-center justify-between p-5 hover:bg-gray-50 focus:outline-none">
-                    <div class="flex items-center gap-3">
-                        <i class="fa-solid fa-stamp text-xl text-green-600"></i>
-                        <span class="text-lg font-bold">2. Watermark & Logo</span>
+                <!-- Sliders -->
+                <div class="space-y-4">
+                    <div class="flex items-center gap-4">
+                        <i class="fa-solid fa-sun text-gray-400 w-5 text-center"></i>
+                        <input type="range" id="f-bright" min="50" max="150" value="100" class="flex-1">
                     </div>
-                    <i id="wmCardIcon" class="fa-solid fa-chevron-down text-gray-400"></i>
-                </button>
-                <div id="wmCardContent" class="hidden p-5 pt-0 space-y-5 border-t border-gray-100">
-
-                    <div class="flex flex-col gap-2">
-                        <label for="watermarkImage"
-                            class="w-full bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 font-semibold py-3 px-4 rounded-xl transition duration-200 text-sm flex justify-center items-center gap-2 cursor-pointer">
-                            <i class="fa-solid fa-upload"></i> Upload "Urban Leaf" Logo
-                        </label>
-                        <div id="logoStatus" class="hidden text-xs text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2 flex items-center gap-2">
-                            <i class="fa-solid fa-circle-check"></i> Logo loaded! Adjust the sliders below.
-                        </div>
+                    <div class="flex items-center gap-4">
+                        <i class="fa-solid fa-circle-half-stroke text-gray-400 w-5 text-center"></i>
+                        <input type="range" id="f-cont" min="50" max="150" value="100" class="flex-1">
                     </div>
-
-                    <div class="grid grid-cols-2 gap-5 mt-4">
-                        <div>
-                            <label class="text-xs text-gray-600 font-bold block mb-2">Size</label>
-                            <input type="range" id="wmSize" min="5" max="100" value="30"
-                                class="w-full h-2 accent-green-600 rounded-full">
-                        </div>
-                        <div>
-                            <label class="text-xs text-gray-600 font-bold block mb-2">Opacity</label>
-                            <input type="range" id="wmOpacity" min="10" max="100" value="80"
-                                class="w-full h-2 accent-green-600 rounded-full">
-                        </div>
-                        <div>
-                            <label class="text-xs text-gray-600 font-bold block mb-2">Position X</label>
-                            <input type="range" id="wmPosX" min="0" max="100" value="10"
-                                class="w-full h-2 accent-green-600 rounded-full">
-                        </div>
-                        <div>
-                            <label class="text-xs text-gray-600 font-bold block mb-2">Position Y</label>
-                            <input type="range" id="wmPosY" min="0" max="100" value="10"
-                                class="w-full h-2 accent-green-600 rounded-full">
-                        </div>
+                    <div class="flex items-center gap-4">
+                        <i class="fa-solid fa-droplet text-gray-400 w-5 text-center"></i>
+                        <input type="range" id="f-sat" min="0" max="200" value="100" class="flex-1">
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                <button type="button" onclick="toggleCard('postCard')"
-                    class="w-full flex items-center justify-between p-5 hover:bg-gray-50 focus:outline-none">
+            <!-- LOGO TAB -->
+            <div id="tab-logo" class="tab-content space-y-5">
+                <!-- Logo selector bar -->
+                <div class="flex justify-between items-center bg-gray-800/60 border border-gray-700 p-3 rounded-2xl shadow-inner">
                     <div class="flex items-center gap-3">
-                        <i class="fa-brands fa-facebook text-xl text-blue-600"></i>
-                        <span class="text-lg font-bold">3. Post Generator</span>
-                    </div>
-                    <i id="postCardIcon" class="fa-solid fa-chevron-down text-gray-400"></i>
-                </button>
-                <div id="postCardContent" class="hidden p-5 pt-0 space-y-5 border-t border-gray-100">
-
-                    <div class="space-y-3 mb-4">
-                        <div>
-                            <label class="text-xs font-bold text-gray-600">Plant Name</label>
-                            <input type="text" id="plantName" placeholder="e.g., Sakunthala Flash"
-                                class="w-full p-3 border border-gray-300 rounded-lg text-sm bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <div class="w-12 h-12 bg-gray-900 rounded-xl flex items-center justify-center p-1 border border-gray-700 overflow-hidden relative">
+                            <!-- Try exact file name "logo.png". If missing show generic icon -->
+                            <img id="logoPreview" src="./logo.png" alt="Logo" class="max-w-full max-h-full object-contain" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'><text y=\'65\' x=\'15\' font-size=\'40\'>🖼️</text></svg>'">
                         </div>
-                        <div>
-                            <label class="text-xs font-bold text-gray-600">Condition/Price</label>
-                            <input type="text" id="plantCondition" value="මෙම කඳ පැලය විකිණීමට ඇත"
-                                class="w-full p-3 border border-gray-300 rounded-lg text-sm bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <div class="text-xs">
+                            <p class="font-bold text-sm text-gray-200">App Logo</p>
+                            <p class="text-green-500 font-medium text-[10px]" id="logoStateText">Default Local Logo</p>
                         </div>
                     </div>
+                    <div>
+                        <input type="file" id="wmUpload" accept="image/png" class="hidden">
+                        <label for="wmUpload" class="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded-xl text-xs font-bold cursor-pointer text-white border border-gray-600 flex items-center gap-2"><i class="fa-solid fa-rotate"></i> Replace</label>
+                    </div>
+                </div>
+                <!-- Controls -->
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between text-xs text-gray-400 font-bold uppercase tracking-wider mb-[-5px]"><span>Size</span><span>Opacity</span></div>
+                    <div class="flex gap-6">
+                        <input type="range" id="l-size" min="1" max="100" value="15" class="flex-1">
+                        <input type="range" id="l-opac" min="0" max="100" value="90" class="flex-1">
+                    </div>
+                    <div class="flex items-center justify-between text-xs text-gray-400 font-bold uppercase tracking-wider mb-[-5px]"><span>Position X</span><span>Position Y</span></div>
+                    <div class="flex gap-6">
+                        <input type="range" id="l-x" min="0" max="100" value="95" class="flex-1">
+                        <input type="range" id="l-y" min="0" max="100" value="95" class="flex-1">
+                    </div>
+                </div>
+            </div>
 
-                    <button type="button" onclick="generateCaption()"
-                        class="w-full bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 font-semibold py-3 px-4 rounded-lg transition duration-200 text-sm flex justify-center items-center gap-2 focus:outline-none">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i> Generate Viral Caption
+            <!-- TEXT TAB -->
+            <div id="tab-text" class="tab-content space-y-4">
+                <div class="relative">
+                    <input type="text" id="t-text" placeholder="Add custom text watermark..." value=""
+                           class="pl-10 text-base font-medium placeholder-gray-500">
+                    <i class="fa-solid fa-pen-nib absolute left-3.5 top-3.5 text-gray-500"></i>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <select id="t-font" class="font-medium">
+                        <option value="Montserrat" class="font-montserrat">Montserrat</option>
+                        <option value="Playfair Display" class="font-playfair">Playfair Display</option>
+                        <option value="Dancing Script" class="font-dancing">Dancing Script</option>
+                        <option value="Caveat" class="font-caveat">Caveat Brush</option>
+                        <option value="Oswald" class="font-oswald">Oswald</option>
+                    </select>
+                    <select id="t-color" class="font-medium">
+                        <option value="#ffffff">🤍 White</option>
+                        <option value="#000000">🖤 Black</option>
+                        <option value="#22c55e">💚 Brand Green</option>
+                        <option value="#facc15">💛 Yellow Gold</option>
+                    </select>
+                </div>
+                
+                <div class="space-y-4 mt-2">
+                    <div class="flex items-center justify-between text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-[-5px]"><span>Size</span><span>Opacity</span></div>
+                    <div class="flex gap-6">
+                        <input type="range" id="t-size" min="10" max="150" value="40" class="flex-1">
+                        <input type="range" id="t-opac" min="10" max="100" value="80" class="flex-1">
+                    </div>
+                    <div class="flex items-center justify-between text-[10px] text-gray-400 font-bold uppercase tracking-wider mb-[-5px]"><span>Position X</span><span>Position Y</span></div>
+                    <div class="flex gap-6">
+                        <input type="range" id="t-x" min="0" max="100" value="50" class="flex-1">
+                        <input type="range" id="t-y" min="0" max="100" value="85" class="flex-1">
+                    </div>
+                </div>
+            </div>
+
+            <!-- EXPORT TAB -->
+            <div id="tab-export" class="tab-content space-y-4 h-full flex flex-col justify-center">
+                <textarea id="caption" rows="3" class="text-xs resize-none !bg-gray-800/50" placeholder="Your viral social media caption goes here..."></textarea>
+                
+                <div class="grid grid-cols-3 gap-3">
+                    <button onclick="genCaption()" class="col-span-1 bg-gray-800 border border-gray-700 text-green-400 py-3.5 rounded-xl font-bold text-xs hover:bg-gray-700 transition">
+                        <i class="fa-solid fa-wand-magic-sparkles mb-1 block"></i> Caption
                     </button>
-
-                    <div class="relative">
-                        <textarea id="captionOutput" rows="7"
-                            class="w-full p-3 border border-gray-300 rounded-lg text-sm bg-gray-50 focus:bg-white resize-none focus:outline-none"
-                            placeholder="FB caption with hashtags..."></textarea>
-                        <button type="button" onclick="copyCaption(this)"
-                            class="absolute bottom-3 right-3 bg-gray-800 hover:bg-black text-white p-2.5 rounded text-xs shadow flex items-center gap-1.5 focus:outline-none">
-                            <i class="fa-regular fa-copy"></i> Copy
-                        </button>
-                    </div>
-
-                    <div class="mt-4 pt-4 border-t border-gray-100">
-                        <label class="text-xs text-gray-600 font-bold block mb-1">Image Metadata Name (Hidden)</label>
-                        <input type="text" id="metaAuthor" value="Urban Leaf Sri Lanka"
-                            class="w-full p-3 text-sm border border-gray-300 rounded-lg bg-gray-50 focus:bg-white focus:outline-none">
-                    </div>
+                    <button onclick="dlImage()" class="col-span-2 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white shadow-[0_5px_20px_rgba(34,197,94,0.3)] py-3.5 rounded-xl font-bold text-sm tracking-wide transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-download text-lg"></i> SAVE & EXPORT
+                    </button>
                 </div>
+                <p class="text-[10px] text-center text-gray-500 mt-2">Photo saves directly to your device with max resolution.</p>
             </div>
-
         </div>
 
-        <!-- Floating mini preview for mobile scrolling -->
-        <div id="floatingPreview">
-            <canvas id="floatingCanvas"></canvas>
-            <div id="floatingPreviewLabel">PREVIEW</div>
-        </div>
-
-        <div
-            class="fixed bottom-0 left-0 right-0 bg-white p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] border-t border-gray-200 z-50 flex justify-center max-w-4xl mx-auto rounded-t-2xl">
-            <button type="button" onclick="downloadImage()"
-                class="w-full max-w-sm bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-2xl shadow-xl transition duration-200 flex justify-center items-center gap-3 text-lg focus:outline-none">
-                <i class="fa-solid fa-download text-xl"></i> Save HD Image + Meta
+        <!-- App Bottom Navigation Bar -->
+        <div class="flex bg-[#0f1115] pb-safe z-50">
+            <button onclick="switchTab('adjust')" class="tab-btn w-1/4 py-3 text-[10px] text-gray-500 font-bold uppercase tracking-wider active flex flex-col items-center gap-1.5 transition">
+                <i class="fa-solid fa-sliders text-xl mb-0.5"></i> Adjust
+            </button>
+            <button onclick="switchTab('logo')" class="tab-btn w-1/4 py-3 text-[10px] text-gray-500 font-bold uppercase tracking-wider flex flex-col items-center gap-1.5 transition">
+                <i class="fa-solid fa-leaf text-xl mb-0.5"></i> Logo
+            </button>
+            <button onclick="switchTab('text')" class="tab-btn w-1/4 py-3 text-[10px] text-gray-500 font-bold uppercase tracking-wider flex flex-col items-center gap-1.5 transition">
+                <i class="fa-solid fa-font text-xl mb-0.5"></i> Text
+            </button>
+            <button onclick="switchTab('export')" class="tab-btn w-1/4 py-3 text-[10px] text-gray-500 font-bold uppercase tracking-wider flex flex-col items-center gap-1.5 transition">
+                <i class="fa-solid fa-share-nodes text-xl mb-0.5"></i> Export
             </button>
         </div>
+    </div>
 
-    </main>
+    <!-- Padding for safe area on modern phones -->
+    <style>
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0); }
+    </style>
 
     <script>
-        // Wait for DOM to load fully to prevent undefined errors
         document.addEventListener('DOMContentLoaded', () => {
             const canvas = document.getElementById('canvas');
             const ctx = canvas.getContext('2d');
+            let baseImg = null;
+            let logoImg = new Image();
+            let logoLoaded = false;
 
-            // Expose logic globally so inline HTML onclicks can use them
-            window.baseImgObj = null;
-            window.wmImgObj = null;
+            // Important: Make sure the user saves their logo as logo.png in the same application folder!
+            logoImg.crossOrigin = "anonymous";
+            logoImg.onload = () => { logoLoaded = true; draw(); };
+            // If the user's logo file fails to block, error handle handles UI silently
+            logoImg.onerror = () => { console.warn("Default logo.png missing. Please place logo.png in folder."); }
+            logoImg.src = './logo.png'; 
 
-            const inputs = ['wmSize', 'wmOpacity', 'wmPosX', 'wmPosY', 'filterBright', 'filterContrast', 'filterSat'];
-
+            // Auto-trigger draw when inputs change mapping
+            const inputs = ['f-bright','f-cont','f-sat', 'l-size','l-opac','l-x','l-y', 't-text','t-font','t-color','t-size','t-opac','t-x','t-y'];
             inputs.forEach(id => {
                 const el = document.getElementById(id);
-                if (el) {
-                    el.addEventListener('input', () => {
-                        window.updateLabels();
-                        window.drawCanvas();
-                    });
+                if(el) {
+                    el.addEventListener('input', draw);
+                    el.addEventListener('change', draw);
                 }
             });
 
             // Base Image Upload Logic
-            document.getElementById('baseImage').addEventListener('change', function (e) {
+            document.getElementById('baseImage').addEventListener('change', e => {
                 const file = e.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = function (event) {
-                    window.baseImgObj = new Image();
-                    window.baseImgObj.onload = function () {
-                        canvas.width = window.baseImgObj.width;
-                        canvas.height = window.baseImgObj.height;
-
-                        // Show canvas, hide placeholder
-                        canvas.style.display = 'block';
+                if(!file) return;
+                const r = new FileReader();
+                r.onload = ev => {
+                    baseImg = new Image();
+                    baseImg.onload = () => {
+                        document.getElementById('uploadPrompt').classList.add('hidden');
                         canvas.classList.remove('hidden');
-                        document.getElementById('uploadLabel').classList.add('hidden');
-
-                        // Lock preview box height to current rendered size to prevent layout jump
-                        const previewBox = document.getElementById('previewBox');
-                        if (previewBox) {
-                            // Remove min-height constraint so canvas drives the height naturally
-                            previewBox.style.minHeight = 'unset';
-                        }
-
-                        window.drawCanvas();
-                        window.toggleCard('filterCard'); // Open presets card
-
-                        // Setup scroll watcher to show floating preview on mobile
-                        window.setupScrollPreview();
-                    }
-                    window.baseImgObj.src = event.target.result;
-                }
-                reader.readAsDataURL(file);
-            });
-
-            // Watermark Image Upload Logic
-            document.getElementById('watermarkImage').addEventListener('change', function (e) {
-                const file = e.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = function (event) {
-                    window.wmImgObj = new Image();
-                    window.wmImgObj.onload = function () {
-                        window.drawCanvas();
-                        // Show success badge instead of auto-opening card (which caused page jump)
-                        const logoStatus = document.getElementById('logoStatus');
-                        if (logoStatus) {
-                            logoStatus.classList.remove('hidden');
-                            logoStatus.classList.add('flex');
-                        }
+                        
+                        // For mobile optimization, reset adjustments upon new photo
+                        applyPreset('none');
                     };
-                    window.wmImgObj.src = event.target.result;
-                }
-                reader.readAsDataURL(file);
+                    baseImg.src = ev.target.result;
+                };
+                r.readAsDataURL(file);
             });
 
-            window.updateLabels = function () {
-                document.getElementById('brightVal').innerText = document.getElementById('filterBright').value + '%';
-                document.getElementById('contrastVal').innerText = document.getElementById('filterContrast').value + '%';
-                document.getElementById('satVal').innerText = document.getElementById('filterSat').value + '%';
-            };
+            // Custom Logo Upload Logic
+            document.getElementById('wmUpload').addEventListener('change', e => {
+                const file = e.target.files[0];
+                if(!file) return;
+                const r = new FileReader();
+                r.onload = ev => {
+                    logoImg = new Image();
+                    logoImg.onload = () => {
+                        logoLoaded = true;
+                        document.getElementById('logoPreview').src = logoImg.src;
+                        document.getElementById('logoStateText').innerText = "Custom Uploaded";
+                        document.getElementById('logoStateText').classList.replace("text-green-500", "text-blue-400");
+                        draw();
+                    };
+                    logoImg.src = ev.target.result;
+                };
+                r.readAsDataURL(file);
+            });
 
-            window.drawCanvas = function () {
-                if (!window.baseImgObj) return;
+            function draw() {
+                if(!baseImg) return;
+                
+                // Actual Canvas Size
+                canvas.width = baseImg.width;
+                canvas.height = baseImg.height;
 
-                const bright = document.getElementById('filterBright').value;
-                const contrast = document.getElementById('filterContrast').value;
-                const sat = document.getElementById('filterSat').value;
-
-                ctx.filter = `brightness(${bright}%) contrast(${contrast}%) saturate(${sat}%)`;
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(window.baseImgObj, 0, 0);
-
+                // 1. Draw Base 
+                ctx.filter = `brightness(${document.getElementById('f-bright').value}%) contrast(${document.getElementById('f-cont').value}%) saturate(${document.getElementById('f-sat').value}%)`;
+                ctx.drawImage(baseImg, 0, 0);
                 ctx.filter = 'none';
 
-                if (window.wmImgObj) {
-                    const sizeScale = document.getElementById('wmSize').value / 100;
-                    const opacity = document.getElementById('wmOpacity').value / 100;
-                    const posX = document.getElementById('wmPosX').value / 100;
-                    const posY = document.getElementById('wmPosY').value / 100;
+                // 2. Draw Image Logo
+                if(logoLoaded && document.getElementById('l-opac').value > 0) {
+                    const size = document.getElementById('l-size').value / 100;
+                    const opac = document.getElementById('l-opac').value / 100;
+                    const posX = document.getElementById('l-x').value / 100;
+                    const posY = document.getElementById('l-y').value / 100;
 
-                    ctx.globalAlpha = opacity;
-
-                    const wmWidth = canvas.width * sizeScale;
-                    const wmHeight = (window.wmImgObj.height / window.wmImgObj.width) * wmWidth;
-                    const x = (canvas.width - wmWidth) * posX;
-                    const y = (canvas.height - wmHeight) * posY;
-
-                    ctx.drawImage(window.wmImgObj, x, y, wmWidth, wmHeight);
+                    ctx.globalAlpha = opac;
+                    const w = canvas.width * size;
+                    // Proportional height
+                    const h = (logoImg.height / logoImg.width) * w;
+                    
+                    // X/Y calculate using w/h offsets to make sliders behave predictably
+                    const x = (canvas.width - w) * posX;
+                    const y = (canvas.height - h) * posY;
+                    
+                    ctx.drawImage(logoImg, x, y, w, h);
                     ctx.globalAlpha = 1.0;
                 }
-            };
 
-            // Sync floating mini-preview canvas with main canvas
-            window.syncFloatingPreview = function () {
-                const floatingCanvas = document.getElementById('floatingCanvas');
-                if (!floatingCanvas || !window.baseImgObj) return;
-                const fCtx = floatingCanvas.getContext('2d');
-                floatingCanvas.width = canvas.width;
-                floatingCanvas.height = canvas.height;
-                fCtx.drawImage(canvas, 0, 0);
-            };
+                // 3. Draw Text Watermark
+                const text = document.getElementById('t-text').value;
+                if(text) {
+                    const font = document.getElementById('t-font').value;
+                    const color = document.getElementById('t-color').value;
+                    const size = parseInt(document.getElementById('t-size').value);
+                    const opac = document.getElementById('t-opac').value / 100;
+                    const posX = document.getElementById('t-x').value / 100;
+                    const posY = document.getElementById('t-y').value / 100;
 
-            // Original drawCanvas — extend to also sync floating preview
-            const _origDraw = window.drawCanvas;
-            window.drawCanvas = function () {
-                _origDraw();
-                window.syncFloatingPreview();
-            };
+                    // Relative font scaling (100 slider translates to 10% of image width)
+                    const actualFontSize = canvas.width * (size / 1000); 
 
-            // Setup IntersectionObserver to auto-show/hide floating preview
-            window.setupScrollPreview = function () {
-                const previewBox = document.getElementById('previewBox');
-                const floatingPreview = document.getElementById('floatingPreview');
-                if (!previewBox || !floatingPreview) return;
+                    ctx.globalAlpha = opac;
+                    ctx.fillStyle = color;
+                    ctx.font = `${actualFontSize}px '${font}', sans-serif`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
 
-                if (window._scrollObserver) window._scrollObserver.disconnect();
+                    // Premium shadow for text legibility
+                    ctx.shadowColor = 'rgba(0,0,0,0.6)';
+                    ctx.shadowBlur = actualFontSize * 0.2;
+                    ctx.shadowOffsetX = actualFontSize * 0.04;
+                    ctx.shadowOffsetY = actualFontSize * 0.04;
 
-                window._scrollObserver = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                        if (!window.baseImgObj) return;
-                        if (entry.isIntersecting) {
-                            // Main image visible — hide floating
-                            floatingPreview.classList.remove('visible');
-                        } else {
-                            // Main image scrolled out — show floating thumbnail
-                            floatingPreview.classList.add('visible');
-                            window.syncFloatingPreview();
-                        }
-                    });
-                }, { threshold: 0.1 });
+                    const x = canvas.width * posX;
+                    const y = canvas.height * posY;
+                    ctx.fillText(text, x, y);
 
-                window._scrollObserver.observe(previewBox);
-            };
+                    // Reset context state
+                    ctx.globalAlpha = 1.0;
+                    ctx.shadowColor = 'transparent';
+                }
+            }
+            window.draw = draw; // Export for inline onclick accesses
         });
 
-        // Toggle Cards Function
-        function toggleCard(cardId) {
-            const content = document.getElementById(cardId + 'Content');
-            const icon = document.getElementById(cardId + 'Icon');
-            if (!content || !icon) return;
-
-            const isHidden = content.classList.contains('hidden');
-
-            // Close all
-            document.querySelectorAll('[id$="Content"]').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('[id$="Icon"]').forEach(el => {
-                el.classList.remove('fa-chevron-up', 'text-green-700');
-                el.classList.add('fa-chevron-down', 'text-gray-400');
+        // Tab Switching Engine
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content, .tab-btn').forEach(el => {
+                el.classList.remove('active');
             });
-
-            if (isHidden) {
-                content.classList.remove('hidden');
-                icon.classList.remove('fa-chevron-down', 'text-gray-400');
-                icon.classList.add('fa-chevron-up', 'text-green-700');
-            }
+            document.getElementById('tab-'+tab).classList.add('active');
+            event.currentTarget.classList.add('active');
         }
 
-        // Apply Presets (Fixed to accept the button element directly)
-        function applyPreset(btnElement, presetType) {
-            if (!window.baseImgObj) {
-                alert("Please upload your plant photo first.");
+        // Preset Settings Engine
+        function applyPreset(type) {
+            const b = document.getElementById('f-bright'), c = document.getElementById('f-cont'), s = document.getElementById('f-sat');
+            if(type === 'none') { b.value=100; c.value=100; s.value=100; }
+            if(type === 'natural') { b.value=105; c.value=110; s.value=120; }
+            if(type === 'vibrant') { b.value=102; c.value=115; s.value=140; }
+            if(type === 'moody') { b.value=90; c.value=125; s.value=85; }
+            if(window.draw) window.draw();
+        }
+
+        // Feature Generators
+        function genCaption() {
+            const baseTxt = [
+                "✨ Premium Urban Leaf Collection ✨",
+                "🪴 Available now. Island-wide safe delivery guaranteed!",
+                "💳 Bank transfers accepted. No COD.",
+                "💬 Dm us to place your order or call for details.",
+                "\n#UrbanLeaf #PlantsSriLanka #UrbanJungle #TrendingPlants #CeylonPlants"
+            ].join('\n');
+            document.getElementById('caption').value = baseTxt;
+        }
+
+        function dlImage() {
+            const canvas = document.getElementById('canvas');
+            if(canvas.classList.contains('hidden')) {
+                alert('Please upload a photo first!');
                 return;
             }
-
-            const bInput = document.getElementById('filterBright');
-            const cInput = document.getElementById('filterContrast');
-            const sInput = document.getElementById('filterSat');
-
-            switch (presetType) {
-                case 'natural':
-                    bInput.value = 105; cInput.value = 110; sInput.value = 110;
-                    break;
-                case 'greens':
-                    bInput.value = 110; cInput.value = 120; sInput.value = 130;
-                    break;
-                case 'blooms':
-                    bInput.value = 100; cInput.value = 110; sInput.value = 150;
-                    break;
-                case 'rustic':
-                    bInput.value = 105; cInput.value = 125; sInput.value = 100;
-                    break;
-            }
-
-            window.updateLabels();
-            window.drawCanvas();
-
-            // UI Update for buttons
-            document.querySelectorAll('.preset-btn').forEach(el => {
-                el.classList.remove('border-green-600', 'bg-green-50');
-            });
-            if (btnElement) {
-                btnElement.classList.add('border-green-600', 'bg-green-50');
-            }
-        }
-
-        // Generate FB Caption
-        function generateCaption() {
-            const plantName = document.getElementById('plantName').value || "Anthurium Plant";
-            const condition = document.getElementById('plantCondition').value;
-            const hashName = plantName.replace(/[^a-zA-Z0-9]/g, '');
-
-            const caption = `🌸 ${plantName.toUpperCase()} 🌸\n\n🌱 ${condition}\n🚚 Island-wide Courier Facilities Available (ශ්‍රී ලංකාව පුරා කුරියර් පහසුකම්)\n💳 Island-wide Bank Transfer only. No COD.\n📞 Inbox us or call for more details.\n📍 Place your order soon.\n\n#AnthuriumLovers #AnthuriumSriLanka #SriLankaPlants #indoorplants #Anthuriums #${hashName} #Trending #AnthuriumForSale`;
-
-            document.getElementById('captionOutput').value = caption;
-        }
-
-        // Copy FB Caption (Fixed element reference)
-        function copyCaption(btnElement) {
-            const text = document.getElementById('captionOutput').value;
-            if (!text) {
-                alert("Please generate a caption first.");
-                return;
-            }
-
-            navigator.clipboard.writeText(text).then(() => {
-                const originalHtml = btnElement.innerHTML;
-                btnElement.classList.add('bg-green-700', 'text-white');
-                btnElement.innerHTML = '<i class="fa-solid fa-check"></i> Copied';
-
-                setTimeout(() => {
-                    btnElement.classList.remove('bg-green-700', 'text-white');
-                    btnElement.innerHTML = originalHtml;
-                }, 2000);
-            }).catch(err => {
-                alert('Could not copy text automatically. Please select and copy manually.');
-            });
-        }
-
-        // Download Image
-        function downloadImage() {
-            if (!window.baseImgObj) {
-                alert("Please upload your plant photo first!");
-                return;
-            }
-
-            let jpegData = canvas.toDataURL('image/jpeg', 0.95);
-
-            try {
-                if (typeof piexif !== 'undefined') {
-                    const author = document.getElementById('metaAuthor').value;
-                    const zerothIfd = {};
-                    zerothIfd[piexif.ImageIFD.Artist] = author;
-                    zerothIfd[piexif.ImageIFD.Copyright] = author;
-                    zerothIfd[piexif.ImageIFD.Software] = "Urban Leaf Studio v1.5";
-
-                    const exifObj = { "0th": zerothIfd };
-                    const exifBytes = piexif.dump(exifObj);
-                    jpegData = piexif.insert(exifBytes, jpegData);
-                }
-            } catch (e) {
-                console.log("Metadata skipped", e);
-            }
-
-            const link = document.createElement('a');
-            link.download = `UrbanLeaf_${Date.now()}.jpg`;
-            link.href = jpegData;
-            link.click();
+            const a = document.createElement('a');
+            a.download = 'UrbanLeaf_Pro_' + Date.now() + '.jpg';
+            a.href = canvas.toDataURL('image/jpeg', 0.95);
+            a.click();
         }
     </script>
 </body>
-
 </html>
