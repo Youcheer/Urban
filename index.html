@@ -849,14 +849,18 @@ var toneMap={viral:'Super viral and exciting with emojis and attention-grabbing 
 var htMap={english:'15-20 relevant English hashtags for maximum reach',mixed:'Mix of English and transliterated Sinhala hashtags like #LankaFlora #SriLankaPlants',niche:'10 highly targeted niche plant enthusiast hashtags'};
 
 async function callAI(prompt) {
-  var res = await fetch('https://api.anthropic.com/v1/messages', {
-    method:'POST',
-    headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01'},
-    body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+  var response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1024,
+      messages: [{ role: 'user', content: prompt }]
+    })
   });
-  var data = await res.json();
+  var data = await response.json();
   if (data.error) throw new Error(data.error.message);
-  return (data.content||[]).map(function(b){return b.text||'';}).join('');
+  return (data.content || []).map(function(b){ return b.text || ''; }).join('');
 }
 
 async function runAI() {
