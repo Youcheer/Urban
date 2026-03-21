@@ -236,6 +236,17 @@ textarea{resize:none;}
 .badge-new{background:rgba(34,197,94,.15);border:1px solid var(--grn-dim);
   color:var(--acc);font-size:10px;font-weight:600;padding:2px 7px;border-radius:9px;}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.key-box{background:rgba(34,197,94,.06);border:1px solid var(--grn-dim);border-radius:12px;padding:13px;margin-bottom:12px;}
+.key-box-title{font-size:12px;font-weight:600;color:var(--acc);display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.key-box-note{font-size:11px;color:var(--txt2);line-height:1.5;margin-bottom:9px;}
+.key-row{display:flex;gap:8px;align-items:center;}
+.key-row input{flex:1;margin-bottom:0;font-family:monospace;font-size:12px;background:var(--bg);border:1px solid var(--bord);border-radius:9px;padding:9px 11px;color:var(--txt);outline:none;}
+.key-row input:focus{border-color:var(--grn);}
+.key-save{background:var(--grn);color:#000;border:none;border-radius:9px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;flex-shrink:0;}
+.key-status{font-size:11px;margin-top:7px;display:none;align-items:center;gap:5px;}
+.key-status.ok{color:var(--acc);}
+.key-status.err{color:#f87171;}
+.key-toggle{background:none;border:none;color:var(--txt2);cursor:pointer;padding:0 4px;font-size:13px;flex-shrink:0;}
 </style>
 </head>
 <body>
@@ -449,6 +460,20 @@ textarea{resize:none;}
         <i id="postArr" class="fa-solid fa-chevron-down" style="color:var(--txt2)"></i>
       </div>
       <div id="postBody" class="card-body">
+
+        <!-- GROQ API KEY -->
+        <div class="key-box">
+          <div class="key-box-title"><i class="fa-solid fa-key"></i> Groq API Key</div>
+          <div class="key-box-note">console.groq.com &#8594; API Keys &#8594; Free key generate කරන්න. Browser ෙ save වෙනවා.</div>
+          <div class="key-row">
+            <input type="password" id="groqKey" placeholder="gsk_..." autocomplete="off">
+            <button class="key-toggle" onclick="toggleKeyVis()" title="Show/hide"><i class="fa-solid fa-eye" id="eyeIcon"></i></button>
+            <button class="key-save" onclick="saveKey()">Save</button>
+          </div>
+          <div class="key-status ok" id="keyOk"><i class="fa-solid fa-circle-check"></i> Key saved!</div>
+          <div class="key-status err" id="keyErr"><i class="fa-solid fa-circle-xmark"></i> <span id="keyErrMsg">Invalid key</span></div>
+        </div>
+
         <div class="fl">Plant Name</div>
         <input type="text" id="plantName" placeholder="e.g. Sakunthala Flash">
 
@@ -685,6 +710,14 @@ imgPanel.addEventListener('click', function() {
    IMAGE UPLOAD
    ============================================================ */
 window.addEventListener('DOMContentLoaded', function() {
+  /* Restore saved Groq key */
+  var savedKey = localStorage.getItem('groq_key');
+  if (savedKey) {
+    document.getElementById('groqKey').value = savedKey;
+    document.getElementById('keyOk').style.display = 'flex';
+    setTimeout(function(){ document.getElementById('keyOk').style.display='none'; }, 2000);
+  }
+
   /* Load logo.png */
   var lg = new Image();
   lg.onload = function() {
@@ -848,19 +881,50 @@ var platMap={facebook:'Facebook plant selling page in Sri Lanka',instagram:'Inst
 var toneMap={viral:'Super viral and exciting with emojis and attention-grabbing hooks.',professional:'Professional, trustworthy and elegant tone.',sinhala:'Natural Sinhala and English mix, like real Sri Lankan plant sellers write.',short:'Very short and punchy, max 4 lines, high impact only.'};
 var htMap={english:'15-20 relevant English hashtags for maximum reach',mixed:'Mix of English and transliterated Sinhala hashtags like #LankaFlora #SriLankaPlants',niche:'10 highly targeted niche plant enthusiast hashtags'};
 
+/* ---- API KEY HELPERS ---- */
+function saveKey() {
+  var k = document.getElementById('groqKey').value.trim();
+  if (!k) { showKeyStatus('err','Key empty!'); return; }
+  if (!k.startsWith('gsk_')) { showKeyStatus('err','Key must start with gsk_'); return; }
+  localStorage.setItem('groq_key', k);
+  showKeyStatus('ok', null);
+}
+function getKey() {
+  return document.getElementById('groqKey').value.trim() || localStorage.getItem('groq_key') || '';
+}
+function showKeyStatus(type, msg) {
+  var ok  = document.getElementById('keyOk');
+  var err = document.getElementById('keyErr');
+  ok.style.display  = type==='ok'  ? 'flex' : 'none';
+  err.style.display = type==='err' ? 'flex' : 'none';
+  if (msg) document.getElementById('keyErrMsg').textContent = msg;
+  if (type==='ok') setTimeout(function(){ ok.style.display='none'; }, 3000);
+}
+function toggleKeyVis() {
+  var inp  = document.getElementById('groqKey');
+  var icon = document.getElementById('eyeIcon');
+  if (inp.type==='password') {
+    inp.type='text'; icon.className='fa-solid fa-eye-slash';
+  } else {
+    inp.type='password'; icon.className='fa-solid fa-eye';
+  }
+}
+
 async function callAI(prompt) {
-  var response = await fetch('https://api.anthropic.com/v1/messages', {
+  var key = getKey();
+  if (!key) throw new Error('Groq API key නෑ. AI Post Generator card ෙ key paste කරන්න!');
+  var res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {'Content-Type':'application/json','Authorization':'Bearer '+key},
     body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
+      model: 'llama-3.1-8b-instant',
       max_tokens: 1024,
-      messages: [{ role: 'user', content: prompt }]
+      messages: [{role:'user', content: prompt}]
     })
   });
-  var data = await response.json();
+  var data = await res.json();
   if (data.error) throw new Error(data.error.message);
-  return (data.content || []).map(function(b){ return b.text || ''; }).join('');
+  return data.choices[0].message.content || '';
 }
 
 async function runAI() {
