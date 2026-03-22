@@ -254,7 +254,6 @@ textarea{resize:none;}
 </head>
 <body>
 
-<!-- HEADER -->
 <header class="hdr">
   <div class="hdr-logo">
     <img src="logo.png" onerror="this.style.display='none'" alt="Urban Leaf">
@@ -269,7 +268,6 @@ textarea{resize:none;}
 <input type="file" id="baseImgInput" accept="image/*" style="display:none">
 <input type="file" id="logoInput"    accept="image/png" style="display:none">
 
-<!-- IMAGE PANEL (fixed top half) -->
 <div id="imgPanel">
   <label id="upLabel" for="baseImgInput">
     <i class="fa-regular fa-image"></i>
@@ -281,11 +279,9 @@ textarea{resize:none;}
   <button id="zoomReset" onclick="resetZoom()">Reset zoom</button>
 </div>
 
-<!-- CONTROLS PANEL (scrollable bottom half) -->
 <div id="ctrlPanel">
   <div class="cards">
 
-    <!-- 1. PRESETS -->
     <div class="card">
       <div class="card-hdr" onclick="toggleCard('presets')">
         <div class="card-hdr-l">
@@ -340,7 +336,6 @@ textarea{resize:none;}
       </div>
     </div>
 
-    <!-- 2. WATERMARK -->
     <div class="card">
       <div class="card-hdr" onclick="toggleCard('wm')">
         <div class="card-hdr-l">
@@ -355,7 +350,6 @@ textarea{resize:none;}
           <button class="tab" id="tabText" onclick="switchTab('text')">Text Watermark</button>
         </div>
 
-        <!-- LOGO PANEL -->
         <div id="panelLogo">
           <label class="logo-btn" for="logoInput">
             <i class="fa-solid fa-upload"></i> Upload Custom Logo (PNG)
@@ -384,7 +378,6 @@ textarea{resize:none;}
           </div>
         </div>
 
-        <!-- TEXT PANEL -->
         <div id="panelText" style="display:none">
           <div class="fl">Watermark Text</div>
           <input type="text" id="wmTxt" value="Urban Leaf Sri Lanka" placeholder="Your brand name...">
@@ -450,7 +443,6 @@ textarea{resize:none;}
       </div>
     </div>
 
-    <!-- 3. AI POST GENERATOR -->
     <div class="card">
       <div class="card-hdr" onclick="toggleCard('post')">
         <div class="card-hdr-l">
@@ -464,7 +456,6 @@ textarea{resize:none;}
       </div>
       <div id="postBody" class="card-body">
 
-        <!-- AI PROVIDER + KEY -->
         <div class="key-box">
           <div class="key-box-title"><i class="fa-solid fa-robot"></i> AI Provider &amp; Key</div>
 
@@ -475,7 +466,7 @@ textarea{resize:none;}
             <option value="openrouter">OpenRouter (Free models)</option>
             <option value="anthropic">Anthropic Claude ($5 free)</option>
             <option value="openai">OpenAI ChatGPT (Paid)</option>
-            <option value="gemini">Google Gemini (SL ෙ work නෑ)</option>
+            <option value="gemini">Google Gemini (Free 1.5 Flash)</option>
           </select>
 
           <a class="key-link" id="keyLink" href="https://console.groq.com/keys" target="_blank">
@@ -559,11 +550,7 @@ textarea{resize:none;}
       </div>
     </div>
 
-  </div><!-- /cards -->
-</div><!-- /ctrlPanel -->
-
-<!-- SAVE BAR -->
-<div class="save-bar">
+  </div></div><div class="save-bar">
   <label class="upload-btn-bar" for="baseImgInput" title="Change photo">
     <i class="fa-solid fa-camera"></i>
   </label>
@@ -909,8 +896,8 @@ var htMap={english:'15-20 relevant English hashtags for maximum reach',mixed:'Mi
 var PROVIDERS = {
   groq:       { url:'https://api.groq.com/openai/v1/chat/completions',      model:'llama-3.1-8b-instant',               type:'openai',    link:'https://console.groq.com/keys',           linkTxt:'Free key: console.groq.com/keys',        ph:'gsk_...' },
   deepseek:   { url:'https://api.deepseek.com/v1/chat/completions',         model:'deepseek-chat',                      type:'openai',    link:'https://platform.deepseek.com/api_keys',  linkTxt:'$2 free: platform.deepseek.com',         ph:'sk-...' },
-  gemini:     { url:'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent', model:'', type:'gemini', link:'https://aistudio.google.com/app/apikey',  linkTxt:'Free key: aistudio.google.com',          ph:'AIza...' },
-  openrouter: { url:'https://openrouter.ai/api/v1/chat/completions',        model:'meta-llama/llama-3.1-8b-instruct:free', type:'openai', link:'https://openrouter.ai/keys',             linkTxt:'Free key: openrouter.ai/keys',           ph:'sk-or-...' },
+  gemini:     { url:'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent', model:'', type:'gemini', link:'https://aistudio.google.com/app/apikey',  linkTxt:'Free key: aistudio.google.com',          ph:'AIza...' },
+  openrouter: { url:'https://openrouter.ai/api/v1/chat/completions',        model:'meta-llama/llama-3.1-8b-instruct:free', type:'openai', link:'https://openrouter.ai/keys',              linkTxt:'Free key: openrouter.ai/keys',           ph:'sk-or-...' },
   anthropic:  { url:'https://api.anthropic.com/v1/messages',                model:'claude-haiku-4-5-20251001',          type:'anthropic', link:'https://console.anthropic.com',           linkTxt:'console.anthropic.com ($5 free)',        ph:'sk-ant-...' },
   openai:     { url:'https://api.openai.com/v1/chat/completions',           model:'gpt-4o-mini',                        type:'openai',    link:'https://platform.openai.com/api-keys',    linkTxt:'platform.openai.com/api-keys',          ph:'sk-...' }
 };
