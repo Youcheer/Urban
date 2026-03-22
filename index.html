@@ -12,220 +12,102 @@
   --bg:#0f0f0f; --surf:#1a1a1a; --surf2:#242424; --bord:#2e2e2e;
   --grn:#22c55e; --grn-dim:#166534; --grn-glow:rgba(34,197,94,0.12);
   --txt:#f0f0f0; --txt2:#888; --acc:#4ade80;
-  --hdr:50px;
-  --img-h:42vh;   /* top panel height */
-  --bar:62px;     /* bottom save bar */
+  --hdr:50px; --img-h:42vh; --bar:62px;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-html,body{
-  background:var(--bg);color:var(--txt);
-  font-family:"DM Sans",sans-serif;
-  height:100%; overflow:hidden;   /* full-screen app feel */
-}
+html,body{background:var(--bg);color:var(--txt);font-family:"DM Sans",sans-serif;height:100%;overflow:hidden;}
 
-/* ===== HEADER ===== */
-.hdr{
-  position:fixed;top:0;left:0;right:0;z-index:300;
-  height:var(--hdr);
-  background:rgba(15,15,15,0.97);backdrop-filter:blur(12px);
-  border-bottom:1px solid var(--bord);
-  padding:0 14px;display:flex;align-items:center;justify-content:space-between;}
+.hdr{position:fixed;top:0;left:0;right:0;z-index:300;height:var(--hdr);background:rgba(15,15,15,0.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--bord);padding:0 14px;display:flex;align-items:center;justify-content:space-between;}
 .hdr-logo{display:flex;align-items:center;gap:9px;}
 .hdr-logo img{height:32px;object-fit:contain;}
 .hdr-t{font-family:"Playfair Display",serif;font-size:17px;color:var(--acc);}
 .hdr-s{font-size:9px;color:var(--txt2);letter-spacing:1px;text-transform:uppercase;}
-.cam-btn{background:var(--grn);color:#000;border:none;border-radius:50%;
-  width:38px;height:38px;display:flex;align-items:center;justify-content:center;
-  cursor:pointer;font-size:15px;flex-shrink:0;}
+.cam-btn{background:var(--grn);color:#000;border:none;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;flex-shrink:0;}
 
-/* ===== IMAGE PANEL (top, fixed) ===== */
-#imgPanel{
-  position:fixed;
-  top:var(--hdr);left:0;right:0;
-  height:var(--img-h);
-  background:#111;
-  overflow:hidden;   /* clips zoom overflow */
-  z-index:200;
-  display:flex;align-items:center;justify-content:center;
-  touch-action:none; /* needed for pinch zoom */
-}
-/* Upload placeholder inside image panel */
-#upLabel{
-  display:flex;flex-direction:column;align-items:center;gap:10px;
-  color:var(--txt2);cursor:pointer;padding:20px;text-align:center;}
+#imgPanel{position:fixed;top:var(--hdr);left:0;right:0;height:var(--img-h);background:#111;overflow:hidden;z-index:200;display:flex;align-items:center;justify-content:center;touch-action:none;}
+#upLabel{display:flex;flex-direction:column;align-items:center;gap:10px;color:var(--txt2);cursor:pointer;padding:20px;text-align:center;}
 #upLabel i{font-size:48px;color:var(--bord);}
 #upLabel p{font-size:14px;}
 #upLabel small{font-size:11px;color:#555;}
-/* The canvas inside the panel — transformed for zoom/pan */
-#mainCanvas{
-  position:absolute;
-  width:100%;height:100%;
-  object-fit:contain;
-  display:none;
-  transform-origin:center center;
-  will-change:transform;
-  border-radius:0;}
-
-/* Zoom hint overlay */
-#zoomHint{
-  position:absolute;bottom:8px;right:8px;
-  background:rgba(0,0,0,.55);color:#fff;
-  font-size:11px;padding:4px 9px;border-radius:20px;
-  display:none;pointer-events:none;z-index:10;}
+#mainCanvas{position:absolute;width:100%;height:100%;object-fit:contain;display:none;transform-origin:center center;will-change:transform;border-radius:0;}
+#zoomHint{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.55);color:#fff;font-size:11px;padding:4px 9px;border-radius:20px;display:none;pointer-events:none;z-index:10;}
 #zoomHint.show{display:block;}
-#zoomReset{
-  position:absolute;top:8px;right:8px;
-  background:rgba(0,0,0,.6);color:var(--acc);
-  border:1px solid var(--grn-dim);border-radius:20px;
-  font-size:11px;padding:4px 10px;cursor:pointer;
-  display:none;z-index:10;font-family:inherit;}
+#zoomReset{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);color:var(--acc);border:1px solid var(--grn-dim);border-radius:20px;font-size:11px;padding:4px 10px;cursor:pointer;display:none;z-index:10;font-family:inherit;}
 #zoomReset.show{display:block;}
 
-/* ===== CONTROLS PANEL (bottom, scrollable) ===== */
-#ctrlPanel{
-  position:fixed;
-  top:calc(var(--hdr) + var(--img-h));
-  left:0;right:0;
-  bottom:var(--bar);
-  overflow-y:auto;
-  -webkit-overflow-scrolling:touch;
-  z-index:100;
-  background:var(--bg);
-}
+#ctrlPanel{position:fixed;top:calc(var(--hdr) + var(--img-h));left:0;right:0;bottom:var(--bar);overflow-y:auto;-webkit-overflow-scrolling:touch;z-index:100;background:var(--bg);}
 .cards{padding:10px 14px;display:flex;flex-direction:column;gap:10px;}
 
-/* ===== SAVE BAR ===== */
-.save-bar{
-  position:fixed;bottom:0;left:0;right:0;
-  height:var(--bar);z-index:300;
-  background:rgba(15,15,15,.97);
-  border-top:1px solid var(--bord);
-  padding:10px 14px;display:flex;gap:10px;align-items:center;}
-.save-btn{
-  flex:1;display:flex;align-items:center;justify-content:center;gap:8px;
-  background:linear-gradient(135deg,#22c55e,#16a34a);color:#000;font-weight:700;
-  font-size:15px;border:none;border-radius:12px;padding:0 16px;height:42px;
-  cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(34,197,94,.3);}
-.upload-btn-bar{
-  flex-shrink:0;width:42px;height:42px;
-  background:var(--surf2);border:1px solid var(--bord);border-radius:12px;
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;color:var(--txt2);font-size:16px;}
+.save-bar{position:fixed;bottom:0;left:0;right:0;height:var(--bar);z-index:300;background:rgba(15,15,15,.97);border-top:1px solid var(--bord);padding:10px 14px;display:flex;gap:10px;align-items:center;}
+.save-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#000;font-weight:700;font-size:15px;border:none;border-radius:12px;padding:0 16px;height:42px;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(34,197,94,.3);}
+.upload-btn-bar{flex-shrink:0;width:42px;height:42px;background:var(--surf2);border:1px solid var(--bord);border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--txt2);font-size:16px;}
 
-/* ===== CARDS ===== */
 .card{background:var(--surf);border:1px solid var(--bord);border-radius:14px;overflow:hidden;}
-.card-hdr{display:flex;align-items:center;justify-content:space-between;
-  padding:13px 15px;cursor:pointer;user-select:none;transition:background .15s;}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;padding:13px 15px;cursor:pointer;user-select:none;transition:background .15s;}
 .card-hdr:hover{background:var(--surf2);}
 .card-hdr-l{display:flex;align-items:center;gap:11px;}
-.card-ico{width:32px;height:32px;border-radius:8px;background:var(--grn-dim);
-  display:flex;align-items:center;justify-content:center;}
+.card-ico{width:32px;height:32px;border-radius:8px;background:var(--grn-dim);display:flex;align-items:center;justify-content:center;}
 .card-ico i{color:var(--grn);font-size:14px;}
 .card-ttl{font-size:14px;font-weight:600;}
 .card-body{display:none;padding:14px 15px;border-top:1px solid var(--bord);}
 .card-body.open{display:block;}
 
-/* ===== TABS ===== */
-.tabs{display:flex;background:var(--bg);border-radius:9px;padding:3px;
-  margin-bottom:13px;gap:3px;}
-.tab{flex:1;padding:7px;border-radius:7px;border:none;background:transparent;
-  color:var(--txt2);font-size:12px;font-weight:500;cursor:pointer;
-  transition:all .15s;font-family:inherit;}
+.tabs{display:flex;background:var(--bg);border-radius:9px;padding:3px;margin-bottom:13px;gap:3px;}
+.tab{flex:1;padding:7px;border-radius:7px;border:none;background:transparent;color:var(--txt2);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;font-family:inherit;}
 .tab.active{background:var(--grn);color:#000;}
 
-/* ===== PRESETS ===== */
 .preset-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:13px;}
-.preset-btn{background:var(--surf2);border:1.5px solid var(--bord);border-radius:11px;
-  padding:11px 7px;text-align:center;cursor:pointer;transition:all .15s;color:var(--txt);}
+.preset-btn{background:var(--surf2);border:1.5px solid var(--bord);border-radius:11px;padding:11px 7px;text-align:center;cursor:pointer;transition:all .15s;color:var(--txt);}
 .preset-btn:hover,.preset-btn.active{border-color:var(--grn);}
 .preset-btn.active{background:var(--grn-glow);}
 .preset-btn i{display:block;font-size:18px;margin-bottom:4px;}
 .preset-btn span{font-size:11px;font-weight:500;}
 
-/* ===== SLIDERS ===== */
 .sl-row{margin-bottom:12px;}
 .sl-lbl{display:flex;justify-content:space-between;font-size:12px;color:var(--txt2);margin-bottom:5px;}
 .sl-lbl span{color:var(--grn);font-weight:600;}
-input[type=range]{width:100%;height:4px;border-radius:2px;
-  -webkit-appearance:none;appearance:none;background:var(--bord);outline:none;cursor:pointer;}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;
-  border-radius:50%;background:var(--grn);cursor:pointer;
-  box-shadow:0 2px 6px rgba(34,197,94,.4);}
+input[type=range]{width:100%;height:4px;border-radius:2px;-webkit-appearance:none;appearance:none;background:var(--bord);outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--grn);cursor:pointer;box-shadow:0 2px 6px rgba(34,197,94,.4);}
 
-/* ===== FONTS ===== */
 .font-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px;}
-.font-btn{background:var(--surf2);border:1.5px solid var(--bord);border-radius:10px;
-  padding:9px 7px;text-align:center;cursor:pointer;transition:all .15s;color:var(--txt);}
+.font-btn{background:var(--surf2);border:1.5px solid var(--bord);border-radius:10px;padding:9px 7px;text-align:center;cursor:pointer;transition:all .15s;color:var(--txt);}
 .font-btn:hover,.font-btn.active{border-color:var(--grn);}
 .font-btn.active{background:var(--grn-glow);color:var(--acc);}
 .font-btn .fp{font-size:15px;margin-bottom:2px;}
 .font-btn .fn{font-size:10px;color:var(--txt2);}
 
-/* ===== COLORS ===== */
 .clr-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px;align-items:center;}
-.swatch{width:28px;height:28px;border-radius:50%;cursor:pointer;
-  border:2.5px solid transparent;transition:all .15s;flex-shrink:0;}
+.swatch{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2.5px solid transparent;transition:all .15s;flex-shrink:0;}
 .swatch.active{border-color:var(--grn);transform:scale(1.18);}
 
-/* ===== LOGO UPLOAD ===== */
-.logo-btn{display:flex;align-items:center;justify-content:center;gap:8px;
-  background:var(--surf2);border:1.5px dashed var(--bord);border-radius:10px;
-  padding:11px;color:var(--txt2);cursor:pointer;font-size:13px;width:100%;
-  margin-bottom:11px;transition:all .15s;}
+.logo-btn{display:flex;align-items:center;justify-content:center;gap:8px;background:var(--surf2);border:1.5px dashed var(--bord);border-radius:10px;padding:11px;color:var(--txt2);cursor:pointer;font-size:13px;width:100%;margin-bottom:11px;transition:all .15s;}
 .logo-btn:hover{border-color:var(--grn);color:var(--txt);}
-.logo-ok{display:none;align-items:center;gap:6px;background:rgba(34,197,94,.1);
-  border:1px solid var(--grn-dim);border-radius:8px;padding:7px 11px;
-  color:var(--acc);font-size:12px;margin-bottom:11px;}
+.logo-ok{display:none;align-items:center;gap:6px;background:rgba(34,197,94,.1);border:1px solid var(--grn-dim);border-radius:8px;padding:7px 11px;color:var(--acc);font-size:12px;margin-bottom:11px;}
 .logo-ok.show{display:flex;}
 
-/* ===== FORM ===== */
 .fl{font-size:11px;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;}
-input[type=text],textarea{
-  width:100%;background:var(--bg);border:1px solid var(--bord);
-  border-radius:10px;padding:9px 11px;color:var(--txt);
-  font-family:inherit;font-size:14px;outline:none;margin-bottom:11px;}
+input[type=text],textarea{width:100%;background:var(--bg);border:1px solid var(--bord);border-radius:10px;padding:9px 11px;color:var(--txt);font-family:inherit;font-size:14px;outline:none;margin-bottom:11px;}
 input[type=text]:focus,textarea:focus{border-color:var(--grn);}
 textarea{resize:none;}
 
-/* ===== CHIPS ===== */
 .chip-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:11px;}
-.chip{padding:5px 11px;border-radius:18px;font-size:12px;font-weight:500;
-  border:1px solid var(--bord);cursor:pointer;background:var(--surf2);
-  color:var(--txt2);transition:all .15s;}
+.chip{padding:5px 11px;border-radius:18px;font-size:12px;font-weight:500;border:1px solid var(--bord);cursor:pointer;background:var(--surf2);color:var(--txt2);transition:all .15s;}
 .chip.active{background:rgba(34,197,94,.15);border-color:var(--grn);color:var(--acc);}
 
-/* ===== BUTTONS ===== */
-.ai-btn{width:100%;padding:11px;border-radius:11px;border:none;
-  background:linear-gradient(135deg,#22c55e,#16a34a);color:#000;font-weight:700;
-  font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;
-  gap:8px;margin-bottom:8px;font-family:inherit;
-  box-shadow:0 4px 14px rgba(34,197,94,.3);}
+.ai-btn{width:100%;padding:11px;border-radius:11px;border:none;background:linear-gradient(135deg,#22c55e,#16a34a);color:#000;font-weight:700;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;font-family:inherit;box-shadow:0 4px 14px rgba(34,197,94,.3);}
 .ai-btn:disabled{opacity:.4;cursor:not-allowed;}
-.q-btn{width:100%;padding:9px;border-radius:10px;border:1px solid var(--bord);
-  background:var(--surf2);color:var(--txt2);font-size:13px;cursor:pointer;
-  font-family:inherit;display:flex;align-items:center;justify-content:center;
-  gap:6px;margin-bottom:11px;transition:all .15s;}
+.q-btn{width:100%;padding:9px;border-radius:10px;border:1px solid var(--bord);background:var(--surf2);color:var(--txt2);font-size:13px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:11px;transition:all .15s;}
 .q-btn:hover{border-color:var(--grn);color:var(--txt);}
 
-/* ===== OUTPUTS ===== */
 .out-wrap{position:relative;margin-bottom:8px;}
-.out-area{width:100%;background:var(--bg);border:1px solid var(--bord);border-radius:10px;
-  padding:9px 42px 9px 11px;color:var(--txt);font-size:13px;line-height:1.6;
-  min-height:52px;resize:none;font-family:inherit;outline:none;}
+.out-area{width:100%;background:var(--bg);border:1px solid var(--bord);border-radius:10px;padding:9px 42px 9px 11px;color:var(--txt);font-size:13px;line-height:1.6;min-height:52px;resize:none;font-family:inherit;outline:none;}
 .ht-area{background:rgba(34,197,94,.05);border-color:var(--grn-dim);}
-.cp-btn{position:absolute;bottom:8px;right:7px;background:var(--surf2);
-  border:1px solid var(--bord);border-radius:7px;color:var(--txt2);
-  padding:4px 8px;font-size:11px;cursor:pointer;transition:all .15s;}
+.cp-btn{position:absolute;bottom:8px;right:7px;background:var(--surf2);border:1px solid var(--bord);border-radius:7px;color:var(--txt2);padding:4px 8px;font-size:11px;cursor:pointer;transition:all .15s;}
 .cp-btn:hover{border-color:var(--grn);color:var(--acc);}
-.regen-btn{width:100%;padding:8px;border-radius:8px;border:1px solid var(--bord);
-  background:transparent;color:var(--txt2);font-size:12px;cursor:pointer;
-  font-family:inherit;display:flex;align-items:center;justify-content:center;
-  gap:6px;transition:all .15s;}
+.regen-btn{width:100%;padding:8px;border-radius:8px;border:1px solid var(--bord);background:transparent;color:var(--txt2);font-size:12px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s;}
 .regen-btn:hover{border-color:var(--grn);color:var(--acc);}
 
-/* ===== AI LOADER ===== */
-.ai-load{display:none;align-items:center;gap:11px;background:rgba(34,197,94,.07);
-  border:1px solid var(--grn-dim);border-radius:10px;padding:11px;margin-bottom:9px;}
+.ai-load{display:none;align-items:center;gap:11px;background:rgba(34,197,94,.07);border:1px solid var(--grn-dim);border-radius:10px;padding:11px;margin-bottom:9px;}
 .ai-load.show{display:flex;}
 .ai-load i{color:var(--grn);font-size:17px;animation:spin 1s linear infinite;}
 .ai-load-t{font-size:13px;color:var(--acc);}
@@ -233,12 +115,11 @@ textarea{resize:none;}
 @keyframes spin{to{transform:rotate(360deg);}}
 
 .divider{border:none;border-top:1px solid var(--bord);margin:12px 0;}
-.badge-new{background:rgba(34,197,94,.15);border:1px solid var(--grn-dim);
-  color:var(--acc);font-size:10px;font-weight:600;padding:2px 7px;border-radius:9px;}
+.badge-new{background:rgba(34,197,94,.15);border:1px solid var(--grn-dim);color:var(--acc);font-size:10px;font-weight:600;padding:2px 7px;border-radius:9px;}
 .two-col{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+
 .key-box{background:rgba(34,197,94,.06);border:1px solid var(--grn-dim);border-radius:12px;padding:13px;margin-bottom:12px;}
 .key-box-title{font-size:12px;font-weight:600;color:var(--acc);display:flex;align-items:center;gap:6px;margin-bottom:8px;}
-.key-box-note{font-size:11px;color:var(--txt2);line-height:1.5;margin-bottom:9px;}
 .key-row{display:flex;gap:8px;align-items:center;}
 .key-row input{flex:1;margin-bottom:0;font-family:monospace;font-size:12px;background:var(--bg);border:1px solid var(--bord);border-radius:9px;padding:9px 11px;color:var(--txt);outline:none;}
 .key-row input:focus{border-color:var(--grn);}
@@ -257,16 +138,13 @@ textarea{resize:none;}
 <header class="hdr">
   <div class="hdr-logo">
     <img src="logo.png" onerror="this.style.display='none'" alt="Urban Leaf">
-    <div>
-      <div class="hdr-t">Urban Leaf</div>
-      <div class="hdr-s">Studio Pro</div>
-    </div>
+    <div><div class="hdr-t">Urban Leaf</div><div class="hdr-s">Studio Pro</div></div>
   </div>
   <label for="baseImgInput" class="cam-btn"><i class="fa-solid fa-camera"></i></label>
 </header>
 
 <input type="file" id="baseImgInput" accept="image/*" style="display:none">
-<input type="file" id="logoInput"    accept="image/png" style="display:none">
+<input type="file" id="logoInput" accept="image/png" style="display:none">
 
 <div id="imgPanel">
   <label id="upLabel" for="baseImgInput">
@@ -279,754 +157,369 @@ textarea{resize:none;}
   <button id="zoomReset" onclick="resetZoom()">Reset zoom</button>
 </div>
 
-<div id="ctrlPanel">
-  <div class="cards">
+<div id="ctrlPanel"><div class="cards">
 
-    <div class="card">
-      <div class="card-hdr" onclick="toggleCard('presets')">
-        <div class="card-hdr-l">
-          <div class="card-ico"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
-          <div class="card-ttl">Plant Presets</div>
-        </div>
-        <i id="presetsArr" class="fa-solid fa-chevron-down" style="color:var(--txt2)"></i>
+  <!-- PRESETS -->
+  <div class="card">
+    <div class="card-hdr" onclick="toggleCard('presets')">
+      <div class="card-hdr-l"><div class="card-ico"><i class="fa-solid fa-wand-magic-sparkles"></i></div><div class="card-ttl">Plant Presets</div></div>
+      <i id="presetsArr" class="fa-solid fa-chevron-down" style="color:var(--txt2)"></i>
+    </div>
+    <div id="presetsBody" class="card-body">
+      <div class="preset-grid">
+        <div class="preset-btn" onclick="applyPreset(this,'natural')"><i class="fa-solid fa-leaf" style="color:#22c55e"></i><span>Natural Boost</span></div>
+        <div class="preset-btn" onclick="applyPreset(this,'greens')"><i class="fa-solid fa-tree" style="color:#16a34a"></i><span>Lush Greens</span></div>
+        <div class="preset-btn" onclick="applyPreset(this,'blooms')"><i class="fa-solid fa-spa" style="color:#f472b6"></i><span>Vibrant Blooms</span></div>
+        <div class="preset-btn" onclick="applyPreset(this,'rustic')"><i class="fa-solid fa-mountain-sun" style="color:#a78bfa"></i><span>Rustic Clean</span></div>
+        <div class="preset-btn" onclick="applyPreset(this,'golden')"><i class="fa-solid fa-sun" style="color:#facc15"></i><span>Golden Hour</span></div>
+        <div class="preset-btn" onclick="applyPreset(this,'moody')"><i class="fa-solid fa-moon" style="color:#818cf8"></i><span>Moody Dark</span></div>
       </div>
-      <div id="presetsBody" class="card-body">
-        <div class="preset-grid">
-          <div class="preset-btn" onclick="applyPreset(this,'natural')">
-            <i class="fa-solid fa-leaf" style="color:#22c55e"></i><span>Natural Boost</span>
-          </div>
-          <div class="preset-btn" onclick="applyPreset(this,'greens')">
-            <i class="fa-solid fa-tree" style="color:#16a34a"></i><span>Lush Greens</span>
-          </div>
-          <div class="preset-btn" onclick="applyPreset(this,'blooms')">
-            <i class="fa-solid fa-spa" style="color:#f472b6"></i><span>Vibrant Blooms</span>
-          </div>
-          <div class="preset-btn" onclick="applyPreset(this,'rustic')">
-            <i class="fa-solid fa-mountain-sun" style="color:#a78bfa"></i><span>Rustic Clean</span>
-          </div>
-          <div class="preset-btn" onclick="applyPreset(this,'golden')">
-            <i class="fa-solid fa-sun" style="color:#facc15"></i><span>Golden Hour</span>
-          </div>
-          <div class="preset-btn" onclick="applyPreset(this,'moody')">
-            <i class="fa-solid fa-moon" style="color:#818cf8"></i><span>Moody Dark</span>
-          </div>
+      <hr class="divider">
+      <details>
+        <summary style="font-size:12px;color:var(--txt2);cursor:pointer;padding:4px 0 10px">Fine-tune Manually &#9660;</summary>
+        <div class="sl-row"><div class="sl-lbl">Brightness <span id="bVal">100%</span></div><input type="range" id="bright" min="50" max="160" value="100"></div>
+        <div class="sl-row"><div class="sl-lbl">Contrast <span id="cVal">100%</span></div><input type="range" id="contrast" min="50" max="160" value="100"></div>
+        <div class="sl-row"><div class="sl-lbl">Saturation <span id="sVal">100%</span></div><input type="range" id="sat" min="0" max="220" value="100"></div>
+        <div class="sl-row"><div class="sl-lbl">Warmth <span id="wVal">0</span></div><input type="range" id="warmth" min="-50" max="50" value="0"></div>
+      </details>
+    </div>
+  </div>
+
+  <!-- WATERMARK -->
+  <div class="card">
+    <div class="card-hdr" onclick="toggleCard('wm')">
+      <div class="card-hdr-l"><div class="card-ico"><i class="fa-solid fa-stamp"></i></div><div class="card-ttl">Watermark &amp; Logo</div></div>
+      <i id="wmArr" class="fa-solid fa-chevron-down" style="color:var(--txt2)"></i>
+    </div>
+    <div id="wmBody" class="card-body">
+      <div class="tabs">
+        <button class="tab active" id="tabLogo" onclick="switchTab('logo')">Logo</button>
+        <button class="tab" id="tabText" onclick="switchTab('text')">Text Watermark</button>
+      </div>
+      <div id="panelLogo">
+        <label class="logo-btn" for="logoInput"><i class="fa-solid fa-upload"></i> Upload Custom Logo (PNG)</label>
+        <div id="logoBadge" class="logo-ok"><i class="fa-solid fa-circle-check"></i><span id="logoMsg">Logo loaded</span></div>
+        <div class="sl-row"><div class="sl-lbl">Size <span id="wmSzV">30%</span></div><input type="range" id="wmSz" min="5" max="90" value="30"></div>
+        <div class="sl-row"><div class="sl-lbl">Opacity <span id="wmOpV">80%</span></div><input type="range" id="wmOp" min="10" max="100" value="80"></div>
+        <div class="two-col">
+          <div class="sl-row"><div class="sl-lbl">X <span id="wmXV">10%</span></div><input type="range" id="wmX" min="0" max="100" value="10"></div>
+          <div class="sl-row"><div class="sl-lbl">Y <span id="wmYV">10%</span></div><input type="range" id="wmY" min="0" max="100" value="10"></div>
         </div>
-        <hr class="divider">
-        <details>
-          <summary style="font-size:12px;color:var(--txt2);cursor:pointer;padding:4px 0 10px">
-            Fine-tune Manually &#9660;
-          </summary>
-          <div class="sl-row">
-            <div class="sl-lbl">Brightness <span id="bVal">100%</span></div>
-            <input type="range" id="bright" min="50" max="160" value="100">
-          </div>
-          <div class="sl-row">
-            <div class="sl-lbl">Contrast <span id="cVal">100%</span></div>
-            <input type="range" id="contrast" min="50" max="160" value="100">
-          </div>
-          <div class="sl-row">
-            <div class="sl-lbl">Saturation <span id="sVal">100%</span></div>
-            <input type="range" id="sat" min="0" max="220" value="100">
-          </div>
-          <div class="sl-row">
-            <div class="sl-lbl">Warmth <span id="wVal">0</span></div>
-            <input type="range" id="warmth" min="-50" max="50" value="0">
-          </div>
-        </details>
+      </div>
+      <div id="panelText" style="display:none">
+        <div class="fl">Watermark Text</div>
+        <input type="text" id="wmTxt" value="Urban Leaf Sri Lanka" placeholder="Your brand name...">
+        <div class="fl">Font Style</div>
+        <div class="font-grid">
+          <div class="font-btn active" onclick="pickFont(this,'Georgia,serif')"><div class="fp" style="font-family:Georgia,serif">Abc</div><div class="fn">Classic Serif</div></div>
+          <div class="font-btn" onclick="pickFont(this,'Courier New,monospace')"><div class="fp" style="font-family:Courier New,monospace">Abc</div><div class="fn">Mono</div></div>
+          <div class="font-btn" onclick="pickFont(this,'cursive')"><div class="fp" style="font-family:cursive">Abc</div><div class="fn">Script</div></div>
+          <div class="font-btn" onclick="pickFont(this,'fantasy')"><div class="fp" style="font-family:fantasy">Abc</div><div class="fn">Display</div></div>
+          <div class="font-btn" onclick="pickFont(this,'Arial,sans-serif')"><div class="fp" style="font-family:Arial,sans-serif">Abc</div><div class="fn">Clean Sans</div></div>
+        </div>
+        <div class="fl">Text Color</div>
+        <div class="clr-row">
+          <div class="swatch active" style="background:#fff" onclick="pickClr(this,'#fff')"></div>
+          <div class="swatch" style="background:#22c55e" onclick="pickClr(this,'#22c55e')"></div>
+          <div class="swatch" style="background:#facc15" onclick="pickClr(this,'#facc15')"></div>
+          <div class="swatch" style="background:#f472b6" onclick="pickClr(this,'#f472b6')"></div>
+          <div class="swatch" style="background:#60a5fa" onclick="pickClr(this,'#60a5fa')"></div>
+          <div class="swatch" style="background:#f97316" onclick="pickClr(this,'#f97316')"></div>
+          <div class="swatch" style="background:#000;border:1px solid #444" onclick="pickClr(this,'#000')"></div>
+          <input type="color" id="customClr" value="#ffffff" title="Custom" style="width:28px;height:28px;border:none;background:none;cursor:pointer;border-radius:50%;padding:0" oninput="pickCustomClr(this.value)">
+        </div>
+        <div class="sl-row"><div class="sl-lbl">Font Size <span id="tSzV">40px</span></div><input type="range" id="tSz" min="16" max="120" value="40"></div>
+        <div class="sl-row"><div class="sl-lbl">Opacity <span id="tOpV">70%</span></div><input type="range" id="tOp" min="10" max="100" value="70"></div>
+        <div class="two-col">
+          <div class="sl-row"><div class="sl-lbl">X <span id="tXV">50%</span></div><input type="range" id="tX" min="0" max="100" value="50"></div>
+          <div class="sl-row"><div class="sl-lbl">Y <span id="tYV">90%</span></div><input type="range" id="tY" min="0" max="100" value="90"></div>
+        </div>
+        <div class="sl-row"><div class="sl-lbl">Rotation <span id="tRotV">0</span></div><input type="range" id="tRot" min="-45" max="45" value="0"></div>
       </div>
     </div>
+  </div>
 
-    <div class="card">
-      <div class="card-hdr" onclick="toggleCard('wm')">
-        <div class="card-hdr-l">
-          <div class="card-ico"><i class="fa-solid fa-stamp"></i></div>
-          <div class="card-ttl">Watermark &amp; Logo</div>
-        </div>
-        <i id="wmArr" class="fa-solid fa-chevron-down" style="color:var(--txt2)"></i>
+  <!-- AI POST GENERATOR -->
+  <div class="card">
+    <div class="card-hdr" onclick="toggleCard('post')">
+      <div class="card-hdr-l">
+        <div class="card-ico"><i class="fa-solid fa-robot"></i></div>
+        <div style="display:flex;align-items:center;gap:8px"><div class="card-ttl">AI Post Generator</div><span class="badge-new">FREE AI</span></div>
       </div>
-      <div id="wmBody" class="card-body">
-        <div class="tabs">
-          <button class="tab active" id="tabLogo" onclick="switchTab('logo')">Logo</button>
-          <button class="tab" id="tabText" onclick="switchTab('text')">Text Watermark</button>
-        </div>
-
-        <div id="panelLogo">
-          <label class="logo-btn" for="logoInput">
-            <i class="fa-solid fa-upload"></i> Upload Custom Logo (PNG)
-          </label>
-          <div id="logoBadge" class="logo-ok">
-            <i class="fa-solid fa-circle-check"></i>
-            <span id="logoMsg">Logo loaded</span>
-          </div>
-          <div class="sl-row">
-            <div class="sl-lbl">Size <span id="wmSzV">30%</span></div>
-            <input type="range" id="wmSz" min="5" max="90" value="30">
-          </div>
-          <div class="sl-row">
-            <div class="sl-lbl">Opacity <span id="wmOpV">80%</span></div>
-            <input type="range" id="wmOp" min="10" max="100" value="80">
-          </div>
-          <div class="two-col">
-            <div class="sl-row">
-              <div class="sl-lbl">X <span id="wmXV">10%</span></div>
-              <input type="range" id="wmX" min="0" max="100" value="10">
-            </div>
-            <div class="sl-row">
-              <div class="sl-lbl">Y <span id="wmYV">10%</span></div>
-              <input type="range" id="wmY" min="0" max="100" value="10">
-            </div>
-          </div>
-        </div>
-
-        <div id="panelText" style="display:none">
-          <div class="fl">Watermark Text</div>
-          <input type="text" id="wmTxt" value="Urban Leaf Sri Lanka" placeholder="Your brand name...">
-          <div class="fl">Font Style</div>
-          <div class="font-grid">
-            <div class="font-btn active" onclick="pickFont(this,'Georgia,serif')">
-              <div class="fp" style="font-family:Georgia,serif">Abc</div>
-              <div class="fn">Classic Serif</div>
-            </div>
-            <div class="font-btn" onclick="pickFont(this,'Courier New,monospace')">
-              <div class="fp" style="font-family:Courier New,monospace">Abc</div>
-              <div class="fn">Mono</div>
-            </div>
-            <div class="font-btn" onclick="pickFont(this,'cursive')">
-              <div class="fp" style="font-family:cursive">Abc</div>
-              <div class="fn">Script</div>
-            </div>
-            <div class="font-btn" onclick="pickFont(this,'fantasy')">
-              <div class="fp" style="font-family:fantasy">Abc</div>
-              <div class="fn">Display</div>
-            </div>
-            <div class="font-btn" onclick="pickFont(this,'Arial,sans-serif')">
-              <div class="fp" style="font-family:Arial,sans-serif">Abc</div>
-              <div class="fn">Clean Sans</div>
-            </div>
-          </div>
-          <div class="fl">Text Color</div>
-          <div class="clr-row">
-            <div class="swatch active" style="background:#fff"          onclick="pickClr(this,'#fff')"></div>
-            <div class="swatch"        style="background:#22c55e"       onclick="pickClr(this,'#22c55e')"></div>
-            <div class="swatch"        style="background:#facc15"       onclick="pickClr(this,'#facc15')"></div>
-            <div class="swatch"        style="background:#f472b6"       onclick="pickClr(this,'#f472b6')"></div>
-            <div class="swatch"        style="background:#60a5fa"       onclick="pickClr(this,'#60a5fa')"></div>
-            <div class="swatch"        style="background:#f97316"       onclick="pickClr(this,'#f97316')"></div>
-            <div class="swatch"        style="background:#000;border:1px solid #444" onclick="pickClr(this,'#000')"></div>
-            <input type="color" id="customClr" value="#ffffff" title="Custom"
-              style="width:28px;height:28px;border:none;background:none;cursor:pointer;border-radius:50%;padding:0"
-              oninput="pickCustomClr(this.value)">
-          </div>
-          <div class="sl-row">
-            <div class="sl-lbl">Font Size <span id="tSzV">40px</span></div>
-            <input type="range" id="tSz" min="16" max="120" value="40">
-          </div>
-          <div class="sl-row">
-            <div class="sl-lbl">Opacity <span id="tOpV">70%</span></div>
-            <input type="range" id="tOp" min="10" max="100" value="70">
-          </div>
-          <div class="two-col">
-            <div class="sl-row">
-              <div class="sl-lbl">X <span id="tXV">50%</span></div>
-              <input type="range" id="tX" min="0" max="100" value="50">
-            </div>
-            <div class="sl-row">
-              <div class="sl-lbl">Y <span id="tYV">90%</span></div>
-              <input type="range" id="tY" min="0" max="100" value="90">
-            </div>
-          </div>
-          <div class="sl-row">
-            <div class="sl-lbl">Rotation <span id="tRotV">0</span></div>
-            <input type="range" id="tRot" min="-45" max="45" value="0">
-          </div>
-        </div>
-      </div>
+      <i id="postArr" class="fa-solid fa-chevron-down" style="color:var(--txt2)"></i>
     </div>
-
-    <div class="card">
-      <div class="card-hdr" onclick="toggleCard('post')">
-        <div class="card-hdr-l">
-          <div class="card-ico"><i class="fa-solid fa-robot"></i></div>
-          <div style="display:flex;align-items:center;gap:8px">
-            <div class="card-ttl">AI Post Generator</div>
-            <span class="badge-new">FREE AI</span>
-          </div>
+    <div id="postBody" class="card-body">
+      <div class="key-box">
+        <div class="key-box-title"><i class="fa-solid fa-robot"></i> AI Provider &amp; Key</div>
+        <div class="fl">Provider</div>
+        <select class="provider-sel" id="aiProvider" onchange="onProviderChange()">
+          <option value="groq">Groq &#10003; Best Free — Sri Lanka OK</option>
+          <option value="deepseek">DeepSeek (deepseek-chat)</option>
+          <option value="openrouter">OpenRouter (Free models)</option>
+          <option value="anthropic">Anthropic Claude ($5 free)</option>
+          <option value="openai">OpenAI ChatGPT (Paid)</option>
+          <option value="gemini">Google Gemini 2.5 Flash (Free)</option>
+        </select>
+        <a class="key-link" id="keyLink" href="https://console.groq.com/keys" target="_blank">
+          <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:10px"></i>
+          <span id="keyLinkTxt">Free key: console.groq.com/keys</span>
+        </a>
+        <div class="fl">API Key</div>
+        <div class="key-row">
+          <input type="password" id="aiKey" placeholder="gsk_..." autocomplete="off">
+          <button class="key-toggle" onclick="toggleKeyVis()"><i class="fa-solid fa-eye" id="eyeIcon"></i></button>
+          <button class="key-save" onclick="saveKey()">Save</button>
         </div>
-        <i id="postArr" class="fa-solid fa-chevron-down" style="color:var(--txt2)"></i>
+        <div class="key-status ok" id="keyOk"><i class="fa-solid fa-circle-check"></i> Key saved!</div>
+        <div class="key-status err" id="keyErr"><i class="fa-solid fa-circle-xmark"></i> <span id="keyErrMsg">Error</span></div>
       </div>
-      <div id="postBody" class="card-body">
 
-        <div class="key-box">
-          <div class="key-box-title"><i class="fa-solid fa-robot"></i> AI Provider &amp; Key</div>
+      <div class="fl">Plant Name</div>
+      <input type="text" id="plantName" placeholder="e.g. Sakunthala Flash">
+      <div class="fl">Details / Condition</div>
+      <input type="text" id="plantCond" value="මෙම කඳ පැලය විකිණීමට ඇත">
 
-          <div class="fl">Provider</div>
-          <select class="provider-sel" id="aiProvider" onchange="onProviderChange()">
-            <option value="groq">Groq &#10003; Best Free — Sri Lanka OK</option>
-            <option value="deepseek">DeepSeek (deepseek-chat)</option>
-            <option value="openrouter">OpenRouter (Free models)</option>
-            <option value="anthropic">Anthropic Claude ($5 free)</option>
-            <option value="openai">OpenAI ChatGPT (Paid)</option>
-            <option value="gemini">Google Gemini (Free 2.5 Flash)</option>
-          </select>
+      <div class="fl">Platform</div>
+      <div class="chip-row">
+        <div class="chip active" onclick="pickChip(this,'platform','facebook')">Facebook</div>
+        <div class="chip" onclick="pickChip(this,'platform','instagram')">Instagram</div>
+        <div class="chip" onclick="pickChip(this,'platform','whatsapp')">WhatsApp</div>
+      </div>
+      <div class="fl">Caption Tone</div>
+      <div class="chip-row">
+        <div class="chip active" onclick="pickChip(this,'tone','viral')">Viral</div>
+        <div class="chip" onclick="pickChip(this,'tone','professional')">Professional</div>
+        <div class="chip" onclick="pickChip(this,'tone','sinhala')">Sinhala Mix</div>
+        <div class="chip" onclick="pickChip(this,'tone','short')">Short</div>
+      </div>
+      <div class="fl">Hashtag Style</div>
+      <div class="chip-row">
+        <div class="chip active" onclick="pickChip(this,'hashtag','english')">English</div>
+        <div class="chip" onclick="pickChip(this,'hashtag','mixed')">English + Sinhala</div>
+        <div class="chip" onclick="pickChip(this,'hashtag','niche')">Niche Only</div>
+      </div>
 
-          <a class="key-link" id="keyLink" href="https://console.groq.com/keys" target="_blank">
-            <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:10px"></i>
-            <span id="keyLinkTxt">Free key: console.groq.com/keys</span>
-          </a>
+      <button class="ai-btn" id="aiBtn" onclick="runAI()"><i class="fa-solid fa-robot"></i> Generate with AI</button>
+      <button class="q-btn" onclick="quickCaption()"><i class="fa-solid fa-wand-magic-sparkles"></i> Quick Caption (No AI)</button>
 
-          <div class="fl">API Key</div>
-          <div class="key-row">
-            <input type="password" id="aiKey" placeholder="gsk_..." autocomplete="off">
-            <button class="key-toggle" onclick="toggleKeyVis()" title="Show/hide"><i class="fa-solid fa-eye" id="eyeIcon"></i></button>
-            <button class="key-save" onclick="saveKey()">Save</button>
-          </div>
-          <div class="key-status ok" id="keyOk"><i class="fa-solid fa-circle-check"></i> Key saved!</div>
-          <div class="key-status err" id="keyErr"><i class="fa-solid fa-circle-xmark"></i> <span id="keyErrMsg">Invalid key</span></div>
-        </div>
+      <div class="ai-load" id="aiLoader">
+        <i class="fa-solid fa-spinner"></i>
+        <div><div class="ai-load-t">AI is writing your caption...</div><div class="ai-load-s" id="aiTip">Analyzing plant details...</div></div>
+      </div>
 
-        <div class="fl">Plant Name</div>
-        <input type="text" id="plantName" placeholder="e.g. Sakunthala Flash">
-
-        <div class="fl">Details / Condition</div>
-        <input type="text" id="plantCond" value="මෙම කඳ පැලය විකිණීමට ඇත">
-
-        <div class="fl">Platform</div>
-        <div class="chip-row">
-          <div class="chip active" onclick="pickChip(this,'platform','facebook')">Facebook</div>
-          <div class="chip"        onclick="pickChip(this,'platform','instagram')">Instagram</div>
-          <div class="chip"        onclick="pickChip(this,'platform','whatsapp')">WhatsApp</div>
-        </div>
-
-        <div class="fl">Caption Tone</div>
-        <div class="chip-row">
-          <div class="chip active" onclick="pickChip(this,'tone','viral')">Viral</div>
-          <div class="chip"        onclick="pickChip(this,'tone','professional')">Professional</div>
-          <div class="chip"        onclick="pickChip(this,'tone','sinhala')">Sinhala Mix</div>
-          <div class="chip"        onclick="pickChip(this,'tone','short')">Short</div>
-        </div>
-
-        <div class="fl">Hashtag Style</div>
-        <div class="chip-row">
-          <div class="chip active" onclick="pickChip(this,'hashtag','english')">English</div>
-          <div class="chip"        onclick="pickChip(this,'hashtag','mixed')">English + Sinhala</div>
-          <div class="chip"        onclick="pickChip(this,'hashtag','niche')">Niche Only</div>
-        </div>
-
-        <button class="ai-btn" id="aiBtn" onclick="runAI()">
-          <i class="fa-solid fa-robot"></i> Generate with AI
-        </button>
-        <button class="q-btn" onclick="quickCaption()">
-          <i class="fa-solid fa-wand-magic-sparkles"></i> Quick Caption (No AI)
-        </button>
-
-        <div class="ai-load" id="aiLoader">
-          <i class="fa-solid fa-spinner"></i>
-          <div>
-            <div class="ai-load-t">AI is writing your caption...</div>
-            <div class="ai-load-s" id="aiTip">Analyzing plant details...</div>
-          </div>
-        </div>
-
-        <div class="fl">Caption</div>
+      <div class="fl">Caption</div>
+      <div class="out-wrap">
+        <textarea class="out-area" id="captionOut" rows="7" placeholder="Caption will appear here..."></textarea>
+        <button class="cp-btn" onclick="copyText('captionOut',this)">Copy</button>
+      </div>
+      <div id="htSection" style="display:none">
+        <div class="fl" style="color:var(--acc)">Hashtags</div>
         <div class="out-wrap">
-          <textarea class="out-area" id="captionOut" rows="7" placeholder="Caption will appear here..."></textarea>
-          <button class="cp-btn" onclick="copyText('captionOut',this)">Copy</button>
+          <textarea class="out-area ht-area" id="htOut" rows="4" placeholder="Hashtags..."></textarea>
+          <button class="cp-btn" onclick="copyText('htOut',this)">Copy</button>
         </div>
-
-        <div id="htSection" style="display:none">
-          <div class="fl" style="color:var(--acc)">Hashtags</div>
-          <div class="out-wrap">
-            <textarea class="out-area ht-area" id="htOut" rows="4" placeholder="Hashtags..."></textarea>
-            <button class="cp-btn" onclick="copyText('htOut',this)">Copy</button>
-          </div>
-          <button class="regen-btn" onclick="regenHt()">
-            <i class="fa-solid fa-rotate"></i> Regenerate Hashtags
-          </button>
-        </div>
-
-        <hr class="divider">
-        <div class="fl">Image Metadata (Hidden Author Tag)</div>
-        <input type="text" id="metaAuthor" value="Urban Leaf Sri Lanka">
+        <button class="regen-btn" onclick="regenHt()"><i class="fa-solid fa-rotate"></i> Regenerate Hashtags</button>
       </div>
+      <hr class="divider">
+      <div class="fl">Image Metadata (Hidden Author Tag)</div>
+      <input type="text" id="metaAuthor" value="Urban Leaf Sri Lanka">
     </div>
+  </div>
 
-  </div></div><div class="save-bar">
-  <label class="upload-btn-bar" for="baseImgInput" title="Change photo">
-    <i class="fa-solid fa-camera"></i>
-  </label>
-  <button class="save-btn" onclick="saveImg()">
-    <i class="fa-solid fa-download"></i> Save HD Photo
-  </button>
+</div></div>
+
+<div class="save-bar">
+  <label class="upload-btn-bar" for="baseImgInput"><i class="fa-solid fa-camera"></i></label>
+  <button class="save-btn" onclick="saveImg()"><i class="fa-solid fa-download"></i> Save HD Photo</button>
 </div>
 
 <script>
-/* ============================================================
-   STATE
-   ============================================================ */
-var S = {
-  base:null, logo:null,
-  bright:100, contrast:100, sat:100, warmth:0,
-  wmSz:30, wmOp:80, wmX:10, wmY:10,
-  wmTab:'logo',
-  font:'Georgia,serif', color:'#ffffff',
-  tSz:40, tOp:70, tX:50, tY:90, tRot:0,
-  platform:'facebook', tone:'viral', hashtag:'english'
+var S={base:null,logo:null,bright:100,contrast:100,sat:100,warmth:0,wmSz:30,wmOp:80,wmX:10,wmY:10,wmTab:'logo',font:'Georgia,serif',color:'#ffffff',tSz:40,tOp:70,tX:50,tY:90,tRot:0,platform:'facebook',tone:'viral',hashtag:'english'};
+var canvas=document.getElementById('mainCanvas');
+var ctx=canvas.getContext('2d');
+
+function draw(){
+  if(!S.base)return;
+  canvas.width=S.base.naturalWidth; canvas.height=S.base.naturalHeight;
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.filter='brightness('+S.bright+'%) contrast('+S.contrast+'%) saturate('+S.sat+'%)';
+  ctx.drawImage(S.base,0,0,canvas.width,canvas.height); ctx.filter='none';
+  if(S.warmth>0){ctx.save();ctx.globalAlpha=S.warmth/180;ctx.fillStyle='#ff8800';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.restore();}
+  else if(S.warmth<0){ctx.save();ctx.globalAlpha=Math.abs(S.warmth)/180;ctx.fillStyle='#4488ff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.restore();}
+  if(S.wmTab==='logo'&&S.logo){
+    var ww=canvas.width*(S.wmSz/100),wh=(S.logo.naturalHeight/S.logo.naturalWidth)*ww;
+    var wx=(canvas.width-ww)*(S.wmX/100),wy=(canvas.height-wh)*(S.wmY/100);
+    ctx.save();ctx.globalAlpha=S.wmOp/100;ctx.drawImage(S.logo,wx,wy,ww,wh);ctx.restore();
+  }
+  if(S.wmTab==='text'){
+    var txt=document.getElementById('wmTxt').value||'Urban Leaf';
+    var fs=Math.max(16,Math.round(canvas.width*S.tSz/1000));
+    ctx.save();ctx.translate(canvas.width*(S.tX/100),canvas.height*(S.tY/100));ctx.rotate(S.tRot*Math.PI/180);
+    ctx.font='bold '+fs+'px '+S.font;ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.globalAlpha=S.tOp/100;ctx.shadowColor='rgba(0,0,0,0.65)';ctx.shadowBlur=fs*0.3;
+    ctx.fillStyle=S.color;ctx.fillText(txt,0,0);ctx.restore();
+  }
+}
+
+/* ZOOM */
+var Z={scale:1,minScale:1,maxScale:8,startDist:0,startScale:1,tx:0,ty:0,startTx:0,startTy:0,startMidX:0,startMidY:0,pointers:[]};
+function applyTransform(){canvas.style.transform='translate('+Z.tx+'px,'+Z.ty+'px) scale('+Z.scale+')';document.getElementById('zoomReset').classList.toggle('show',Z.scale>1.02);document.getElementById('zoomHint').classList.toggle('show',Z.scale<=1.02&&S.base);}
+function resetZoom(){Z.scale=1;Z.tx=0;Z.ty=0;applyTransform();}
+function clampTranslate(){var p=document.getElementById('imgPanel'),pw=p.clientWidth,ph=p.clientHeight,maxTx=Math.max(0,(pw*Z.scale-pw)/2),maxTy=Math.max(0,(ph*Z.scale-ph)/2);Z.tx=Math.max(-maxTx,Math.min(maxTx,Z.tx));Z.ty=Math.max(-maxTy,Math.min(maxTy,Z.ty));}
+function dist(a,b){return Math.sqrt(Math.pow(a.clientX-b.clientX,2)+Math.pow(a.clientY-b.clientY,2));}
+function mid(a,b){return{x:(a.clientX+b.clientX)/2,y:(a.clientY+b.clientY)/2};}
+var ip=document.getElementById('imgPanel');
+ip.addEventListener('pointerdown',function(e){Z.pointers.push(e);if(Z.pointers.length===2){Z.startDist=dist(Z.pointers[0],Z.pointers[1]);Z.startScale=Z.scale;var m=mid(Z.pointers[0],Z.pointers[1]);Z.startMidX=m.x;Z.startMidY=m.y;Z.startTx=Z.tx;Z.startTy=Z.ty;}else if(Z.pointers.length===1){Z.startTx=Z.tx;Z.startTy=Z.ty;Z.startMidX=e.clientX;Z.startMidY=e.clientY;}},{passive:true});
+ip.addEventListener('pointermove',function(e){for(var i=0;i<Z.pointers.length;i++){if(Z.pointers[i].pointerId===e.pointerId){Z.pointers[i]=e;break;}}if(Z.pointers.length===2){var d=dist(Z.pointers[0],Z.pointers[1]);Z.scale=Math.min(Z.maxScale,Math.max(Z.minScale,Z.startScale*(d/Z.startDist)));var m=mid(Z.pointers[0],Z.pointers[1]);Z.tx=Z.startTx+(m.x-Z.startMidX);Z.ty=Z.startTy+(m.y-Z.startMidY);clampTranslate();applyTransform();}else if(Z.pointers.length===1&&Z.scale>1.05){Z.tx=Z.startTx+(e.clientX-Z.startMidX);Z.ty=Z.startTy+(e.clientY-Z.startMidY);clampTranslate();applyTransform();}},{passive:true});
+function rp(e){Z.pointers=Z.pointers.filter(function(p){return p.pointerId!==e.pointerId;});}
+ip.addEventListener('pointerup',rp,{passive:true});ip.addEventListener('pointercancel',rp,{passive:true});
+var lt=0;ip.addEventListener('click',function(){var n=Date.now();if(n-lt<300)resetZoom();lt=n;});
+
+/* INIT */
+window.addEventListener('DOMContentLoaded',function(){
+  var sp=localStorage.getItem('ai_provider'),sk=localStorage.getItem('ai_key');
+  if(sp){document.getElementById('aiProvider').value=sp;onProviderChange();}
+  if(sk){document.getElementById('aiKey').value=sk;document.getElementById('keyOk').style.display='flex';setTimeout(function(){document.getElementById('keyOk').style.display='none';},2000);}
+  var lg=new Image();
+  lg.onload=function(){S.logo=lg;document.getElementById('logoBadge').classList.add('show');document.getElementById('logoMsg').textContent='Urban Leaf Logo loaded';};
+  lg.src='logo.png';
+});
+
+document.getElementById('baseImgInput').addEventListener('change',function(e){
+  var f=e.target.files[0];if(!f)return;
+  var r=new FileReader();
+  r.onload=function(ev){var img=new Image();img.onload=function(){S.base=img;canvas.style.display='block';document.getElementById('upLabel').style.display='none';resetZoom();var h=document.getElementById('zoomHint');h.classList.add('show');setTimeout(function(){h.classList.remove('show');},2500);draw();openCard('presets');};img.src=ev.target.result;};
+  r.readAsDataURL(f);e.target.value='';
+});
+
+document.getElementById('logoInput').addEventListener('change',function(e){
+  var f=e.target.files[0];if(!f)return;
+  var r=new FileReader();
+  r.onload=function(ev){var img=new Image();img.onload=function(){S.logo=img;document.getElementById('logoMsg').textContent='Custom logo loaded';document.getElementById('logoBadge').classList.add('show');draw();};img.src=ev.target.result;};
+  r.readAsDataURL(f);e.target.value='';
+});
+
+/* SLIDERS */
+function bindSl(id,vi,key,unit){var el=document.getElementById(id),vl=document.getElementById(vi);el.addEventListener('input',function(){S[key]=+el.value;vl.textContent=el.value+(unit||'');draw();});}
+bindSl('bright','bVal','bright','%');bindSl('contrast','cVal','contrast','%');bindSl('sat','sVal','sat','%');bindSl('warmth','wVal','warmth','');
+bindSl('wmSz','wmSzV','wmSz','%');bindSl('wmOp','wmOpV','wmOp','%');bindSl('wmX','wmXV','wmX','%');bindSl('wmY','wmYV','wmY','%');
+bindSl('tSz','tSzV','tSz','px');bindSl('tOp','tOpV','tOp','%');bindSl('tX','tXV','tX','%');bindSl('tY','tYV','tY','%');bindSl('tRot','tRotV','tRot','');
+document.getElementById('wmTxt').addEventListener('input',draw);
+
+/* PRESETS */
+function applyPreset(el,type){
+  if(!S.base){alert('Please upload a photo first.');return;}
+  document.querySelectorAll('.preset-btn').forEach(function(b){b.classList.remove('active');});el.classList.add('active');
+  var map={natural:[105,110,110,5],greens:[110,120,135,8],blooms:[100,110,155,-5],rustic:[105,125,85,15],golden:[115,105,120,40],moody:[80,130,80,-20]};
+  var v=map[type];['bright','contrast','sat','warmth'].forEach(function(k,i){S[k]=v[i];document.getElementById(k).value=v[i];});
+  document.getElementById('bVal').textContent=v[0]+'%';document.getElementById('cVal').textContent=v[1]+'%';document.getElementById('sVal').textContent=v[2]+'%';document.getElementById('wVal').textContent=v[3];draw();
+}
+
+/* WATERMARK */
+function switchTab(tab){S.wmTab=tab;document.getElementById('tabLogo').classList.toggle('active',tab==='logo');document.getElementById('tabText').classList.toggle('active',tab==='text');document.getElementById('panelLogo').style.display=tab==='logo'?'':'none';document.getElementById('panelText').style.display=tab==='text'?'':'none';draw();}
+function pickFont(el,f){S.font=f;document.querySelectorAll('.font-btn').forEach(function(b){b.classList.remove('active');});el.classList.add('active');draw();}
+function pickClr(el,c){S.color=c;document.querySelectorAll('.swatch').forEach(function(b){b.classList.remove('active');});el.classList.add('active');draw();}
+function pickCustomClr(v){S.color=v;draw();}
+
+/* CARDS */
+function toggleCard(id){var body=document.getElementById(id+'Body'),arr=document.getElementById(id+'Arr'),open=body.classList.contains('open');document.querySelectorAll('.card-body').forEach(function(b){b.classList.remove('open');});document.querySelectorAll('[id$="Arr"]').forEach(function(a){a.classList.remove('fa-chevron-up');a.classList.add('fa-chevron-down');});if(!open){body.classList.add('open');arr.classList.replace('fa-chevron-down','fa-chevron-up');}}
+function openCard(id){document.querySelectorAll('.card-body').forEach(function(b){b.classList.remove('open');});document.querySelectorAll('[id$="Arr"]').forEach(function(a){a.classList.remove('fa-chevron-up');a.classList.add('fa-chevron-down');});var body=document.getElementById(id+'Body'),arr=document.getElementById(id+'Arr');if(body){body.classList.add('open');arr.classList.replace('fa-chevron-down','fa-chevron-up');}}
+function pickChip(el,g,v){S[g]=v;el.closest('.chip-row').querySelectorAll('.chip').forEach(function(c){c.classList.remove('active');});el.classList.add('active');}
+
+/* PROVIDERS */
+var PROVIDERS={
+  groq:      {url:'https://api.groq.com/openai/v1/chat/completions',model:'llama-3.3-70b-versatile',type:'openai',link:'https://console.groq.com/keys',linkTxt:'Free key: console.groq.com/keys',ph:'gsk_...'},
+  deepseek:  {url:'https://api.deepseek.com/v1/chat/completions',model:'deepseek-chat',type:'openai',link:'https://platform.deepseek.com/api_keys',linkTxt:'$2 free: platform.deepseek.com',ph:'sk-...'},
+  openrouter:{url:'https://openrouter.ai/api/v1/chat/completions',model:'meta-llama/llama-3.1-8b-instruct:free',type:'openai',link:'https://openrouter.ai/keys',linkTxt:'Free key: openrouter.ai/keys',ph:'sk-or-...'},
+  anthropic: {url:'https://api.anthropic.com/v1/messages',model:'claude-haiku-4-5-20251001',type:'anthropic',link:'https://console.anthropic.com',linkTxt:'console.anthropic.com ($5 free)',ph:'sk-ant-...'},
+  openai:    {url:'https://api.openai.com/v1/chat/completions',model:'gpt-4o-mini',type:'openai',link:'https://platform.openai.com/api-keys',linkTxt:'platform.openai.com/api-keys',ph:'sk-...'},
+  gemini:    {url:'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',model:'',type:'gemini',link:'https://aistudio.google.com/app/apikey',linkTxt:'Free key: aistudio.google.com',ph:'AIza...'}
 };
 
-var canvas = document.getElementById('mainCanvas');
-var ctx    = canvas.getContext('2d');
+function onProviderChange(){var p=PROVIDERS[document.getElementById('aiProvider').value];document.getElementById('keyLink').href=p.link;document.getElementById('keyLinkTxt').textContent=p.linkTxt;document.getElementById('aiKey').placeholder=p.ph;document.getElementById('keyOk').style.display='none';document.getElementById('keyErr').style.display='none';}
+function saveKey(){var pv=document.getElementById('aiProvider').value,k=document.getElementById('aiKey').value.trim();if(!k){showKeyStatus('err','Key empty!');return;}localStorage.setItem('ai_provider',pv);localStorage.setItem('ai_key',k);showKeyStatus('ok',null);}
+function getKey(){return document.getElementById('aiKey').value.trim()||localStorage.getItem('ai_key')||'';}
+function showKeyStatus(t,m){var ok=document.getElementById('keyOk'),err=document.getElementById('keyErr');ok.style.display=t==='ok'?'flex':'none';err.style.display=t==='err'?'flex':'none';if(m)document.getElementById('keyErrMsg').textContent=m;if(t==='ok')setTimeout(function(){ok.style.display='none';},3000);}
+function toggleKeyVis(){var i=document.getElementById('aiKey'),ic=document.getElementById('eyeIcon');if(i.type==='password'){i.type='text';ic.className='fa-solid fa-eye-slash';}else{i.type='password';ic.className='fa-solid fa-eye';}}
 
-/* ============================================================
-   DRAW
-   ============================================================ */
-function draw() {
-  if (!S.base) return;
-  canvas.width  = S.base.naturalWidth;
-  canvas.height = S.base.naturalHeight;
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  ctx.filter = 'brightness('+S.bright+'%) contrast('+S.contrast+'%) saturate('+S.sat+'%)';
-  ctx.drawImage(S.base, 0, 0, canvas.width, canvas.height);
-  ctx.filter = 'none';
-
-  /* Warmth */
-  if (S.warmth > 0) {
-    ctx.save(); ctx.globalAlpha = S.warmth/180;
-    ctx.fillStyle='#ff8800'; ctx.fillRect(0,0,canvas.width,canvas.height); ctx.restore();
-  } else if (S.warmth < 0) {
-    ctx.save(); ctx.globalAlpha = Math.abs(S.warmth)/180;
-    ctx.fillStyle='#4488ff'; ctx.fillRect(0,0,canvas.width,canvas.height); ctx.restore();
-  }
-
-  /* Logo watermark */
-  if (S.wmTab==='logo' && S.logo) {
-    var ww = canvas.width*(S.wmSz/100);
-    var wh = (S.logo.naturalHeight/S.logo.naturalWidth)*ww;
-    var wx = (canvas.width-ww)*(S.wmX/100);
-    var wy = (canvas.height-wh)*(S.wmY/100);
-    ctx.save(); ctx.globalAlpha = S.wmOp/100;
-    ctx.drawImage(S.logo, wx, wy, ww, wh); ctx.restore();
-  }
-
-  /* Text watermark */
-  if (S.wmTab==='text') {
-    var txt = document.getElementById('wmTxt').value||'Urban Leaf';
-    var fs  = Math.max(16, Math.round(canvas.width*S.tSz/1000));
-    ctx.save();
-    ctx.translate(canvas.width*(S.tX/100), canvas.height*(S.tY/100));
-    ctx.rotate(S.tRot*Math.PI/180);
-    ctx.font='bold '+fs+'px '+S.font;
-    ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.globalAlpha=S.tOp/100;
-    ctx.shadowColor='rgba(0,0,0,0.65)'; ctx.shadowBlur=fs*0.3;
-    ctx.fillStyle=S.color;
-    ctx.fillText(txt,0,0);
-    ctx.restore();
-  }
-}
-
-/* ============================================================
-   PINCH-TO-ZOOM on #imgPanel canvas
-   ============================================================ */
-var Z = { scale:1, minScale:1, maxScale:8, startDist:0, startScale:1,
-          tx:0, ty:0, startTx:0, startTy:0, startMidX:0, startMidY:0,
-          pointers:[] };
-
-function applyTransform() {
-  canvas.style.transform = 'translate('+Z.tx+'px,'+Z.ty+'px) scale('+Z.scale+')';
-  document.getElementById('zoomReset').classList.toggle('show', Z.scale>1.02);
-  document.getElementById('zoomHint').classList.toggle('show', Z.scale<=1.02 && S.base);
-}
-
-function resetZoom() {
-  Z.scale=1; Z.tx=0; Z.ty=0; applyTransform();
-}
-
-function clampTranslate() {
-  /* Allow pan only when zoomed in */
-  var panel = document.getElementById('imgPanel');
-  var pw = panel.clientWidth, ph = panel.clientHeight;
-  var maxTx = Math.max(0, (pw*Z.scale - pw)/2);
-  var maxTy = Math.max(0, (ph*Z.scale - ph)/2);
-  Z.tx = Math.max(-maxTx, Math.min(maxTx, Z.tx));
-  Z.ty = Math.max(-maxTy, Math.min(maxTy, Z.ty));
-}
-
-function dist(p1,p2){
-  var dx=p1.clientX-p2.clientX, dy=p1.clientY-p2.clientY;
-  return Math.sqrt(dx*dx+dy*dy);
-}
-function mid(p1,p2){ return {x:(p1.clientX+p2.clientX)/2, y:(p1.clientY+p2.clientY)/2}; }
-
-var imgPanel = document.getElementById('imgPanel');
-
-imgPanel.addEventListener('pointerdown', function(e) {
-  Z.pointers.push(e);
-  if (Z.pointers.length===2) {
-    Z.startDist  = dist(Z.pointers[0], Z.pointers[1]);
-    Z.startScale = Z.scale;
-    var m = mid(Z.pointers[0], Z.pointers[1]);
-    Z.startMidX = m.x; Z.startMidY = m.y;
-    Z.startTx = Z.tx; Z.startTy = Z.ty;
-  } else if (Z.pointers.length===1) {
-    Z.startTx = Z.tx; Z.startTy = Z.ty;
-    Z.startMidX = e.clientX; Z.startMidY = e.clientY;
-  }
-}, {passive:true});
-
-imgPanel.addEventListener('pointermove', function(e) {
-  for (var i=0;i<Z.pointers.length;i++) {
-    if (Z.pointers[i].pointerId===e.pointerId) { Z.pointers[i]=e; break; }
-  }
-  if (Z.pointers.length===2) {
-    /* Pinch zoom */
-    var d = dist(Z.pointers[0], Z.pointers[1]);
-    var newScale = Math.min(Z.maxScale, Math.max(Z.minScale, Z.startScale*(d/Z.startDist)));
-    Z.scale = newScale;
-    /* Pan with mid-point */
-    var m = mid(Z.pointers[0], Z.pointers[1]);
-    Z.tx = Z.startTx + (m.x - Z.startMidX);
-    Z.ty = Z.startTy + (m.y - Z.startMidY);
-    clampTranslate();
-    applyTransform();
-  } else if (Z.pointers.length===1 && Z.scale>1.05) {
-    /* Single-finger pan when zoomed */
-    Z.tx = Z.startTx + (e.clientX - Z.startMidX);
-    Z.ty = Z.startTy + (e.clientY - Z.startMidY);
-    clampTranslate();
-    applyTransform();
-  }
-}, {passive:true});
-
-function removePointer(e) {
-  Z.pointers = Z.pointers.filter(function(p){ return p.pointerId!==e.pointerId; });
-}
-imgPanel.addEventListener('pointerup',     removePointer, {passive:true});
-imgPanel.addEventListener('pointercancel', removePointer, {passive:true});
-
-/* Double-tap to reset zoom */
-var lastTap = 0;
-imgPanel.addEventListener('click', function() {
-  var now = Date.now();
-  if (now-lastTap < 300) { resetZoom(); }
-  lastTap = now;
-});
-
-/* ============================================================
-   IMAGE UPLOAD
-   ============================================================ */
-window.addEventListener('DOMContentLoaded', function() {
-  /* Restore saved provider + key */
-  var savedProvider = localStorage.getItem('ai_provider');
-  var savedKey      = localStorage.getItem('ai_key');
-  if (savedProvider) {
-    document.getElementById('aiProvider').value = savedProvider;
-    onProviderChange();
-  }
-  if (savedKey) {
-    document.getElementById('aiKey').value = savedKey;
-    document.getElementById('keyOk').style.display = 'flex';
-    setTimeout(function(){ document.getElementById('keyOk').style.display='none'; }, 2000);
-  }
-
-  /* Load logo.png */
-  var lg = new Image();
-  lg.onload = function() {
-    S.logo = lg;
-    document.getElementById('logoBadge').classList.add('show');
-    document.getElementById('logoMsg').textContent = 'Urban Leaf Logo loaded';
-  };
-  lg.src = 'logo.png';
-});
-
-document.getElementById('baseImgInput').addEventListener('change', function(e) {
-  var file = e.target.files[0]; if (!file) return;
-  var reader = new FileReader();
-  reader.onload = function(ev) {
-    var img = new Image();
-    img.onload = function() {
-      S.base = img;
-      canvas.style.display = 'block';
-      document.getElementById('upLabel').style.display = 'none';
-      /* Reset zoom whenever new image loaded */
-      resetZoom();
-      /* Show zoom hint briefly */
-      var hint = document.getElementById('zoomHint');
-      hint.classList.add('show');
-      setTimeout(function(){ hint.classList.remove('show'); }, 2500);
-      draw();
-      openCard('presets');
-    };
-    img.src = ev.target.result;
-  };
-  reader.readAsDataURL(file);
-  e.target.value = '';
-});
-
-document.getElementById('logoInput').addEventListener('change', function(e) {
-  var file = e.target.files[0]; if (!file) return;
-  var reader = new FileReader();
-  reader.onload = function(ev) {
-    var img = new Image();
-    img.onload = function() {
-      S.logo = img;
-      document.getElementById('logoMsg').textContent = 'Custom logo loaded';
-      document.getElementById('logoBadge').classList.add('show');
-      draw();
-    };
-    img.src = ev.target.result;
-  };
-  reader.readAsDataURL(file);
-  e.target.value = '';
-});
-
-/* ============================================================
-   SLIDERS
-   ============================================================ */
-function bindSl(id, valId, key, unit) {
-  var el = document.getElementById(id);
-  var vl = document.getElementById(valId);
-  el.addEventListener('input', function() {
-    S[key] = +el.value;
-    vl.textContent = el.value+(unit||'');
-    draw();
-  });
-}
-bindSl('bright','bVal','bright','%');
-bindSl('contrast','cVal','contrast','%');
-bindSl('sat','sVal','sat','%');
-bindSl('warmth','wVal','warmth','');
-bindSl('wmSz','wmSzV','wmSz','%');
-bindSl('wmOp','wmOpV','wmOp','%');
-bindSl('wmX','wmXV','wmX','%');
-bindSl('wmY','wmYV','wmY','%');
-bindSl('tSz','tSzV','tSz','px');
-bindSl('tOp','tOpV','tOp','%');
-bindSl('tX','tXV','tX','%');
-bindSl('tY','tYV','tY','%');
-bindSl('tRot','tRotV','tRot','');
-document.getElementById('wmTxt').addEventListener('input', draw);
-
-/* ============================================================
-   PRESETS
-   ============================================================ */
-function applyPreset(el, type) {
-  if (!S.base) { alert('Please upload a photo first.'); return; }
-  document.querySelectorAll('.preset-btn').forEach(function(b){ b.classList.remove('active'); });
-  el.classList.add('active');
-  var map = {
-    natural:[105,110,110,5], greens:[110,120,135,8],
-    blooms:[100,110,155,-5],  rustic:[105,125,85,15],
-    golden:[115,105,120,40],  moody:[80,130,80,-20]
-  };
-  var v = map[type];
-  ['bright','contrast','sat','warmth'].forEach(function(k,i){
-    S[k]=v[i]; document.getElementById(k).value=v[i];
-  });
-  document.getElementById('bVal').textContent = v[0]+'%';
-  document.getElementById('cVal').textContent = v[1]+'%';
-  document.getElementById('sVal').textContent = v[2]+'%';
-  document.getElementById('wVal').textContent = v[3];
-  draw();
-}
-
-/* ============================================================
-   WATERMARK TABS
-   ============================================================ */
-function switchTab(tab) {
-  S.wmTab = tab;
-  document.getElementById('tabLogo').classList.toggle('active', tab==='logo');
-  document.getElementById('tabText').classList.toggle('active', tab==='text');
-  document.getElementById('panelLogo').style.display = tab==='logo' ? '' : 'none';
-  document.getElementById('panelText').style.display = tab==='text' ? '' : 'none';
-  draw();
-}
-function pickFont(el,font){ S.font=font; document.querySelectorAll('.font-btn').forEach(function(b){b.classList.remove('active');}); el.classList.add('active'); draw(); }
-function pickClr(el,c){ S.color=c; document.querySelectorAll('.swatch').forEach(function(b){b.classList.remove('active');}); el.classList.add('active'); draw(); }
-function pickCustomClr(v){ S.color=v; draw(); }
-
-/* ============================================================
-   CARD TOGGLE
-   ============================================================ */
-function toggleCard(id) {
-  var body = document.getElementById(id+'Body');
-  var arr  = document.getElementById(id+'Arr');
-  var open = body.classList.contains('open');
-  document.querySelectorAll('.card-body').forEach(function(b){ b.classList.remove('open'); });
-  document.querySelectorAll('[id$="Arr"]').forEach(function(a){
-    a.classList.remove('fa-chevron-up'); a.classList.add('fa-chevron-down');
-  });
-  if (!open) {
-    body.classList.add('open');
-    arr.classList.replace('fa-chevron-down','fa-chevron-up');
-  }
-}
-function openCard(id) {
-  document.querySelectorAll('.card-body').forEach(function(b){ b.classList.remove('open'); });
-  document.querySelectorAll('[id$="Arr"]').forEach(function(a){
-    a.classList.remove('fa-chevron-up'); a.classList.add('fa-chevron-down');
-  });
-  var body = document.getElementById(id+'Body');
-  var arr  = document.getElementById(id+'Arr');
-  if (body) { body.classList.add('open'); arr.classList.replace('fa-chevron-down','fa-chevron-up'); }
-}
-
-/* ============================================================
-   CHIPS
-   ============================================================ */
-function pickChip(el,group,val) {
-  S[group]=val;
-  el.closest('.chip-row').querySelectorAll('.chip').forEach(function(c){c.classList.remove('active');});
-  el.classList.add('active');
-}
-
-/* ============================================================
-   AI CAPTION
-   ============================================================ */
+/* AI */
 var tips=['Analyzing plant details...','Crafting viral hooks...','Selecting best hashtags...','Optimizing for engagement...','Almost done...'];
 var tipIdx=0,tipTimer;
-function startTips(){ var el=document.getElementById('aiTip'); el.textContent=tips[0]; tipIdx=0; tipTimer=setInterval(function(){tipIdx=(tipIdx+1)%tips.length;el.textContent=tips[tipIdx];},1800); }
-function stopTips(){ clearInterval(tipTimer); }
+function startTips(){var el=document.getElementById('aiTip');el.textContent=tips[0];tipIdx=0;tipTimer=setInterval(function(){tipIdx=(tipIdx+1)%tips.length;el.textContent=tips[tipIdx];},1800);}
+function stopTips(){clearInterval(tipTimer);}
 
-var platMap={facebook:'Facebook plant selling page in Sri Lanka',instagram:'Instagram with storytelling and aesthetic captions',whatsapp:'WhatsApp status/group message, shorter and direct'};
-var toneMap={viral:'Super viral and exciting with emojis and attention-grabbing hooks.',professional:'Professional, trustworthy and elegant tone.',sinhala:'Natural Sinhala and English mix, like real Sri Lankan plant sellers write.',short:'Very short and punchy, max 4 lines, high impact only.'};
-var htMap={english:'15-20 relevant English hashtags for maximum reach',mixed:'Mix of English and transliterated Sinhala hashtags like #LankaFlora #SriLankaPlants',niche:'10 highly targeted niche plant enthusiast hashtags'};
-
-/* ---- PROVIDER CONFIG ---- */
-var PROVIDERS = {
-  groq:       { url:'https://api.groq.com/openai/v1/chat/completions',      model:'llama-3.1-8b-instant',               type:'openai',    link:'https://console.groq.com/keys',           linkTxt:'Free key: console.groq.com/keys',        ph:'gsk_...' },
-  deepseek:   { url:'https://api.deepseek.com/v1/chat/completions',         model:'deepseek-chat',                      type:'openai',    link:'https://platform.deepseek.com/api_keys',  linkTxt:'$2 free: platform.deepseek.com',         ph:'sk-...' },
-  gemini:     { url:'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent', model:'', type:'gemini', link:'https://aistudio.google.com/app/apikey',  linkTxt:'Free key: aistudio.google.com',          ph:'AIza...' },
-  openrouter: { url:'https://openrouter.ai/api/v1/chat/completions',        model:'meta-llama/llama-3.1-8b-instruct:free', type:'openai', link:'https://openrouter.ai/keys',              linkTxt:'Free key: openrouter.ai/keys',           ph:'sk-or-...' },
-  anthropic:  { url:'https://api.anthropic.com/v1/messages',                model:'claude-haiku-4-5-20251001',          type:'anthropic', link:'https://console.anthropic.com',           linkTxt:'console.anthropic.com ($5 free)',        ph:'sk-ant-...' },
-  openai:     { url:'https://api.openai.com/v1/chat/completions',           model:'gpt-4o-mini',                        type:'openai',    link:'https://platform.openai.com/api-keys',    linkTxt:'platform.openai.com/api-keys',          ph:'sk-...' }
-};
-
-function onProviderChange() {
-  var p = PROVIDERS[document.getElementById('aiProvider').value];
-  document.getElementById('keyLink').href       = p.link;
-  document.getElementById('keyLinkTxt').textContent = p.linkTxt;
-  document.getElementById('aiKey').placeholder  = p.ph;
-  document.getElementById('keyOk').style.display  = 'none';
-  document.getElementById('keyErr').style.display = 'none';
-}
-
-function saveKey() {
-  var provider = document.getElementById('aiProvider').value;
-  var k = document.getElementById('aiKey').value.trim();
-  if (!k) { showKeyStatus('err','Key empty!'); return; }
-  localStorage.setItem('ai_provider', provider);
-  localStorage.setItem('ai_key', k);
-  showKeyStatus('ok', null);
-}
-function getKey() {
-  return document.getElementById('aiKey').value.trim() || localStorage.getItem('ai_key') || '';
-}
-function showKeyStatus(type, msg) {
-  var ok  = document.getElementById('keyOk');
-  var err = document.getElementById('keyErr');
-  ok.style.display  = type==='ok'  ? 'flex' : 'none';
-  err.style.display = type==='err' ? 'flex' : 'none';
-  if (msg) document.getElementById('keyErrMsg').textContent = msg;
-  if (type==='ok') setTimeout(function(){ ok.style.display='none'; }, 3000);
-}
-function toggleKeyVis() {
-  var inp  = document.getElementById('aiKey');
-  var icon = document.getElementById('eyeIcon');
-  if (inp.type==='password') {
-    inp.type='text'; icon.className='fa-solid fa-eye-slash';
-  } else {
-    inp.type='password'; icon.className='fa-solid fa-eye';
-  }
-}
-
-async function callAI(prompt) {
-  var key      = getKey();
-  var provider = document.getElementById('aiProvider').value;
-  var cfg      = PROVIDERS[provider];
-  if (!key) throw new Error('API key නෑ! Provider select කරලා key paste කරන්න.');
-
-  var res, data, text;
-
-  if (cfg.type === 'gemini') {
-    res  = await fetch(cfg.url + '?key=' + key, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({contents:[{parts:[{text:prompt}]}]})
-    });
-    data = await res.json();
-    if (data.error) throw new Error(data.error.message);
-    text = data.candidates[0].content.parts[0].text;
-
-  } else if (cfg.type === 'anthropic') {
-    res  = await fetch(cfg.url, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},
-      body: JSON.stringify({model:cfg.model, max_tokens:1024, messages:[{role:'user',content:prompt}]})
-    });
-    data = await res.json();
-    if (data.error) throw new Error(data.error.message);
-    text = (data.content||[]).map(function(b){return b.text||'';}).join('');
-
-  } else {
-    res  = await fetch(cfg.url, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json','Authorization':'Bearer '+key},
-      body: JSON.stringify({model:cfg.model, max_tokens:1024, messages:[{role:'user',content:prompt}]})
-    });
-    data = await res.json();
-    if (data.error) throw new Error(data.error.message);
-    text = data.choices[0].message.content || '';
+async function callAI(prompt){
+  var key=getKey(),pv=document.getElementById('aiProvider').value,cfg=PROVIDERS[pv];
+  if(!key)throw new Error('API key නෑ! Provider select කරලා key paste කරන්න.');
+  var res,data,text;
+  if(cfg.type==='gemini'){
+    res=await fetch(cfg.url+'?key='+key,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})});
+    data=await res.json();if(data.error)throw new Error(data.error.message);
+    text=data.candidates[0].content.parts[0].text;
+  }else if(cfg.type==='anthropic'){
+    res=await fetch(cfg.url,{method:'POST',headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01'},body:JSON.stringify({model:cfg.model,max_tokens:1024,messages:[{role:'user',content:prompt}]})});
+    data=await res.json();if(data.error)throw new Error(data.error.message);
+    text=(data.content||[]).map(function(b){return b.text||'';}).join('');
+  }else{
+    res=await fetch(cfg.url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:cfg.model,max_tokens:1024,messages:[{role:'user',content:prompt}]})});
+    data=await res.json();if(data.error)throw new Error(data.error.message);
+    text=data.choices[0].message.content||'';
   }
   return text;
 }
 
-async function runAI() {
-  var plant = document.getElementById('plantName').value.trim()||'Anthurium Plant';
-  var cond  = document.getElementById('plantCond').value.trim();
-  var btn   = document.getElementById('aiBtn');
-  btn.disabled=true; btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Generating...';
+async function runAI(){
+  var plant=document.getElementById('plantName').value.trim()||'Anthurium Plant';
+  var cond=document.getElementById('plantCond').value.trim();
+  var btn=document.getElementById('aiBtn');
+  btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Generating...';
   document.getElementById('aiLoader').classList.add('show');
   document.getElementById('captionOut').value='';
   document.getElementById('htSection').style.display='none';
   startTips();
-  var toneInstr = {
-    viral: 'Write an exciting attention-grabbing caption. Strong hook. Relevant plant emojis.',
-    professional: 'Write a professional trustworthy elegant caption.',
-    sinhala: 'Write in natural Sinhala+English mix exactly like Sri Lankan plant sellers write on Facebook. Example: Sakunthala Flash pawath nethi pala! Island-wide delivery. Bank transfer pamanak. Inbox karanna. NOT formal Sinhala - casual natural mix.',
-    short: 'Very short punchy caption. Max 4 lines only.'
+  var toneInstr={
+    viral:'Write an exciting attention-grabbing caption. Strong hook at the start. Use relevant plant emojis throughout.',
+    professional:'Write a professional trustworthy elegant caption. Clean and sophisticated tone.',
+    sinhala:'Write in natural Sinhala+English mix exactly how Sri Lankan plant sellers write on Facebook. Casual friendly tone. Mix Sinhala words naturally with English. Example: "Rare anthurium pawath nethi! Island-wide deliver. Bank transfer only. Inbox karanna price gaana."',
+    short:'Very short and punchy. Maximum 4 lines. High impact only.'
   };
-  var platInstr = {
-    facebook: 'Facebook post for Sri Lankan plant shop.',
-    instagram: 'Instagram caption with storytelling.',
-    whatsapp: 'Short direct WhatsApp status.'
-  };
-  var prompt =
-    'You are a social media expert for Urban Leaf Sri Lanka plant business.' +
-    ' Write a caption for: Plant=' + plant + ', Details=' + cond + '.' +
-    ' Platform: ' + platInstr[S.platform] +
-    ' Tone: ' + toneInstr[S.tone] +
-    ' Hashtags: ' + htMap[S.hashtag] +
-    ' RULES: 1) Island-wide courier available in Sri Lanka. 2) Bank transfer only NO COD. 3) Inbox for details. 4) Use plant emojis. 5) Use ONLY the plant name and details given - do not invent details.' +
-    ' Respond ONLY in this exact JSON format no extra text: {"caption":"caption here","hashtags":"#tag1 #tag2"}';
-  try {
+  var platInstr={facebook:'Facebook post for Sri Lankan plant selling page.',instagram:'Instagram caption with aesthetic storytelling style.',whatsapp:'Short direct WhatsApp status or group message.'};
+  var htStyles={english:'15-20 relevant English hashtags for maximum reach',mixed:'mix of English and Sinhala transliterated hashtags like #LankaFlora #SriLankaPlants',niche:'10 highly targeted niche plant enthusiast hashtags only'};
+  var prompt=
+    'You are a social media expert for "Urban Leaf Sri Lanka", a premium plant business.' +
+    ' Write a social media caption for this plant listing.' +
+    ' Plant name: '+plant+'.' +
+    ' Details/condition: '+cond+'.' +
+    ' Platform: '+platInstr[S.platform] +
+    ' Tone instruction: '+toneInstr[S.tone] +
+    ' Hashtags needed: '+htStyles[S.hashtag]+'.' +
+    ' MANDATORY - include ALL of these in the caption:' +
+    ' 1) Island-wide courier delivery available across Sri Lanka.' +
+    ' 2) Payment by bank transfer ONLY. NO cash on delivery. NO COD.' +
+    ' 3) Tell buyers to inbox or DM for price and details.' +
+    ' 4) Use relevant plant emojis.' +
+    ' 5) Use ONLY the plant name and details provided. Do NOT invent or add any fake information.' +
+    ' Respond ONLY with valid JSON. No markdown, no extra text:' +
+    ' {"caption":"full caption text here","hashtags":"#tag1 #tag2 #tag3"}';
+  try{
     var raw=await callAI(prompt);
     var clean=raw.replace(/\x60\x60\x60json/g,'').replace(/\x60\x60\x60/g,'').trim();
     var parsed=JSON.parse(clean);
     document.getElementById('captionOut').value=parsed.caption||'';
-    if (parsed.hashtags){ document.getElementById('htOut').value=parsed.hashtags; document.getElementById('htSection').style.display='block'; }
-  } catch(e){ document.getElementById('captionOut').value='Error: '+e.message; }
-  finally{ stopTips(); document.getElementById('aiLoader').classList.remove('show'); btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-robot"></i> Generate with AI'; }
+    if(parsed.hashtags){document.getElementById('htOut').value=parsed.hashtags;document.getElementById('htSection').style.display='block';}
+  }catch(e){document.getElementById('captionOut').value='Error: '+e.message;}
+  finally{stopTips();document.getElementById('aiLoader').classList.remove('show');btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-robot"></i> Generate with AI';}
 }
 
-async function regenHt() {
+async function regenHt(){
   var plant=document.getElementById('plantName').value.trim()||'Anthurium Plant';
-  var el=document.getElementById('htOut'); el.value='Regenerating...';
-  try{ var raw=await callAI('Generate ' + htMap[S.hashtag] + ' for a Sri Lankan plant seller selling: ' + plant + '. Write ONLY the hashtags separated by spaces. No explanation, no extra text. Just hashtags.'); el.value=raw.trim(); }
-  catch(e){ el.value='Error: '+e.message; }
+  var el=document.getElementById('htOut');el.value='Regenerating...';
+  var htStyles={english:'15-20 relevant English hashtags',mixed:'mix of English and Sinhala transliterated hashtags',niche:'10 highly targeted niche plant hashtags'};
+  try{var raw=await callAI('Generate '+htStyles[S.hashtag]+' for a Sri Lankan plant seller posting about: '+plant+'. Return ONLY hashtags separated by spaces. No explanation or other text.');el.value=raw.trim();}
+  catch(e){el.value='Error: '+e.message;}
 }
 
-function quickCaption() {
+function quickCaption(){
   var plant=document.getElementById('plantName').value||'Anthurium Plant';
   var cond=document.getElementById('plantCond').value;
   var tag=plant.replace(/[^a-zA-Z0-9]/g,'');
@@ -1040,30 +533,22 @@ function quickCaption() {
   document.getElementById('htSection').style.display='none';
 }
 
-function copyText(id,btn) {
-  var text=document.getElementById(id).value; if(!text) return;
-  navigator.clipboard.writeText(text).then(function(){ var orig=btn.textContent; btn.textContent='Copied!'; btn.style.color='var(--acc)'; setTimeout(function(){btn.textContent=orig;btn.style.color='';},2000); });
+function copyText(id,btn){
+  var text=document.getElementById(id).value;if(!text)return;
+  navigator.clipboard.writeText(text).then(function(){var o=btn.textContent;btn.textContent='Copied!';btn.style.color='var(--acc)';setTimeout(function(){btn.textContent=o;btn.style.color='';},2000);});
 }
 
-/* ============================================================
-   SAVE IMAGE
-   ============================================================ */
-function saveImg() {
-  if (!S.base) { alert('Please upload a photo first!'); return; }
+function saveImg(){
+  if(!S.base){alert('Please upload a photo first!');return;}
   var data=canvas.toDataURL('image/jpeg',0.96);
-  try {
-    if (typeof piexif!=='undefined') {
+  try{
+    if(typeof piexif!=='undefined'){
       var author=document.getElementById('metaAuthor').value;
-      var exifObj={'0th':{}};
-      exifObj['0th'][piexif.ImageIFD.Artist]=author;
-      exifObj['0th'][piexif.ImageIFD.Copyright]=author;
-      exifObj['0th'][piexif.ImageIFD.Software]='Urban Leaf Studio Pro';
-      data=piexif.insert(piexif.dump(exifObj),data);
+      var eo={'0th':{}};eo['0th'][piexif.ImageIFD.Artist]=author;eo['0th'][piexif.ImageIFD.Copyright]=author;eo['0th'][piexif.ImageIFD.Software]='Urban Leaf Studio Pro';
+      data=piexif.insert(piexif.dump(eo),data);
     }
-  } catch(e){}
-  var a=document.createElement('a');
-  a.download='UrbanLeaf_'+Date.now()+'.jpg';
-  a.href=data; a.click();
+  }catch(e){}
+  var a=document.createElement('a');a.download='UrbanLeaf_'+Date.now()+'.jpg';a.href=data;a.click();
 }
 </script>
 </body>
