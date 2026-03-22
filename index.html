@@ -12,7 +12,7 @@
   --bg:#0a0a0c;--surf:rgba(24,24,28,0.7);--surf2:#1f1f23;--bord:rgba(255,255,255,0.08);
   --grn:#10b981;--grn-d:#059669;--grn-glow:rgba(16,185,129,0.15);
   --txt:#f8fafc;--txt2:#94a3b8;--acc:#34d399;--red:#ef4444;
-  --hdr:64px;--img-h:42vh;--nav:72px;
+  --hdr:54px;--img-h:42vh;--nav:auto;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html,body{background:var(--bg);color:var(--txt);font-family:"Outfit",sans-serif;height:100%;overflow:hidden;}
@@ -24,13 +24,13 @@ html,body{background:var(--bg);color:var(--txt);font-family:"Outfit",sans-serif;
   padding:0 20px;display:flex;align-items:center;justify-content:space-between;
   box-shadow:0 10px 30px rgba(0,0,0,0.5);}
 .hdr-left{display:flex;align-items:center;gap:12px;}
-.hdr-logo{height:34px;object-fit:contain;border-radius:8px;}
-.hdr-t{font-family:"Playfair Display",serif;font-size:19px;color:var(--txt);line-height:1.1;letter-spacing:0.5px;}
-.hdr-s{font-size:10px;color:var(--acc);letter-spacing:1.5px;text-transform:uppercase;font-weight:600;}
+.hdr-logo{height:28px;object-fit:contain;border-radius:8px;}
+.hdr-t{font-family:"Playfair Display",serif;font-size:16px;color:var(--txt);line-height:1.1;letter-spacing:0.5px;}
+.hdr-s{font-size:9px;color:var(--acc);letter-spacing:1.5px;text-transform:uppercase;font-weight:600;}
 .hdr-right{display:flex;gap:10px;align-items:center;}
-.hdr-btn{background:rgba(255,255,255,0.05);border:1px solid var(--bord);border-radius:12px;
-  width:42px;height:42px;display:flex;align-items:center;justify-content:center;
-  cursor:pointer;color:var(--txt);font-size:16px;transition:all .3s cubic-bezier(0.4,0,0.2,1);position:relative;}
+.hdr-btn{background:rgba(255,255,255,0.05);border:1px solid var(--bord);border-radius:10px;
+  width:36px;height:36px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--txt);font-size:14px;transition:all .3s cubic-bezier(0.4,0,0.2,1);position:relative;}
 .hdr-btn:hover,.hdr-btn.active{background:var(--grn);color:#000;border-color:var(--grn);transform:translateY(-2px);box-shadow:0 4px 12px var(--grn-glow);}
 
 /* IMAGE PANEL */
@@ -63,15 +63,15 @@ html,body{background:var(--bg);color:var(--txt);font-family:"Outfit",sans-serif;
   padding:4px 10px;border-radius:12px;background:var(--acc);text-transform:uppercase;}
 
 /* BOTTOM TAB NAV */
-.tab-nav{position:fixed;bottom:20px;left:20px;right:20px;height:var(--nav);z-index:400;
+.tab-nav{position:fixed;top:calc(var(--hdr) + 16px);right:16px;left:auto;bottom:auto;height:auto;z-index:400;
   background:rgba(20,20,24,0.85);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
-  border:1px solid rgba(255,255,255,0.08);border-radius:36px;
-  display:flex;align-items:stretch;box-shadow:0 20px 40px rgba(0,0,0,0.6);padding:0 10px;}
-.tab-nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:4px;cursor:pointer;color:var(--txt2);font-size:10px;font-weight:600;
-  letter-spacing:.5px;text-transform:uppercase;border:none;background:transparent;
-  transition:all .3s cubic-bezier(0.4,0,0.2,1);position:relative;border-radius:24px;margin:5px 0;}
-.tab-nav-btn i{font-size:20px;transition:all .3s;}
+  border:1px solid rgba(255,255,255,0.08);border-radius:24px;
+  display:flex;flex-direction:column;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,0.6);padding:10px 5px;}
+.tab-nav-btn{width:46px;height:46px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;cursor:pointer;color:var(--txt2);font-size:9px;font-weight:700;
+  letter-spacing:.3px;text-transform:uppercase;border:none;background:transparent;
+  transition:all .3s cubic-bezier(0.4,0,0.2,1);position:relative;border-radius:18px;margin:4px 0;}
+.tab-nav-btn i{font-size:18px;transition:all .3s;}
 .tab-nav-btn:hover{color:var(--txt);background:rgba(255,255,255,0.03);}
 .tab-nav-btn.active{color:var(--acc);background:var(--grn-glow);}
 .tab-nav-btn.active i{transform:translateY(-2px);filter:drop-shadow(0 2px 4px rgba(16,185,129,0.4));}
@@ -87,7 +87,7 @@ html,body{background:var(--bg);color:var(--txt);font-family:"Outfit",sans-serif;
 
 /* SCROLL PANEL */
 #ctrlPanel{position:fixed;top:calc(var(--hdr) + var(--img-h));left:0;right:0;
-  bottom:0;overflow-y:auto;-webkit-overflow-scrolling:touch;z-index:100;background:var(--bg);padding-bottom:110px;}
+  bottom:0;overflow-y:auto;-webkit-overflow-scrolling:touch;z-index:100;background:var(--bg);padding-bottom:20px;padding-right:70px;}
 .page{display:none;padding:20px;}
 .page.active{display:block;animation:fadeIn 0.3s ease-out forwards;}
 @keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
@@ -293,7 +293,7 @@ select{cursor:pointer;-webkit-appearance:none;appearance:none;
     </div>
   </div>
   <div class="hdr-right">
-    <button class="hdr-btn" onclick="saveImg()" title="Save HD" style="background:var(--grn);color:#000;border-color:var(--grn);border-radius:12px;width:auto;padding:0 14px;font-size:14px;font-weight:700;"><i class="fa-solid fa-download" style="margin-right:6px;"></i>Save HD</button>
+    <button class="hdr-btn" onclick="saveImg()" title="Save HD" style="background:var(--grn);color:#000;border-color:var(--grn);border-radius:10px;width:auto;padding:0 12px;font-size:13px;font-weight:700;"><i class="fa-solid fa-download" style="margin-right:6px;"></i>Save HD</button>
     <button class="hdr-btn" onclick="showPage('settings')" title="Settings"><i class="fa-solid fa-gear"></i></button>
     <label for="baseImgInput" class="hdr-btn" title="Upload photo"><i class="fa-solid fa-camera"></i></label>
   </div>
