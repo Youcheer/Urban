@@ -50,6 +50,8 @@ html,body{background:var(--bg);color:var(--txt);font-family:"Outfit",sans-serif;
 #upLabel small{font-size:12px;color:var(--txt2);letter-spacing:0.5px;}
 #mainCanvas{position:absolute;width:100%;height:100%;object-fit:contain;display:none;
   transform-origin:center center;will-change:transform;}
+.img-in-anim{animation:imgPop 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;}
+@keyframes imgPop{from{opacity:0;transform:scale(0.8);}to{opacity:1;transform:scale(1);}}
 
 /* Zoom UI */
 .zoom-pill{position:absolute;bottom:16px;right:16px;z-index:10;
@@ -228,10 +230,24 @@ select{cursor:pointer;-webkit-appearance:none;appearance:none;
 .cp-btn:hover{background:var(--acc);color:#000;}
 .cp-btn:active{transform:scale(0.95);}
 .regen-btn{width:100%;padding:12px;border-radius:12px;border:1px dashed rgba(255,255,255,0.2);
-  background:transparent;color:var(--txt2);font-size:14px;font-weight:600;cursor:pointer;
+  background:rgba(255,255,255,0.02);color:var(--txt);font-size:14px;font-weight:600;cursor:pointer;
   font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;
   transition:all .3s;margin-bottom:16px;}
 .regen-btn:hover{border-color:var(--acc);color:var(--acc);background:rgba(52,211,153,0.05);}
+.regen-btn:active{transform:scale(0.98);}
+
+/* HASHTAG PILLS COPY */
+.ht-pills-wrap{display:flex;flex-wrap:wrap;gap:8px;padding:12px;background:rgba(0,0,0,0.2);border-radius:14px;border:1px solid rgba(255,255,255,0.05);}
+.ht-pill{padding:6px 12px;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);color:var(--acc);border-radius:12px;font-size:13px;cursor:pointer;transition:all 0.2s;}
+.ht-pill:hover{background:var(--acc);color:#000;transform:translateY(-2px);}
+.ht-pill:active{transform:scale(0.95);}
+.ht-pill.copied{background:#fff;color:#000;border-color:#fff;}
+
+/* WATERMARK PRESETS */
+.wm-pos-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px;}
+.wm-pos-btn{background:rgba(255,255,255,0.03);border:1px solid var(--bord);border-radius:10px;padding:8px 0;color:var(--txt2);font-size:16px;cursor:pointer;transition:all .2s;}
+.wm-pos-btn:hover{background:rgba(255,255,255,0.08);color:var(--txt);}
+.wm-pos-btn:active{transform:scale(0.95);}
 
 /* AI LOADER */
 .ai-load{display:none;align-items:center;gap:16px;background:var(--grn-glow);
@@ -373,6 +389,15 @@ select{cursor:pointer;-webkit-appearance:none;appearance:none;
         <div id="panelLogo">
           <label class="upload-zone" for="logoInput"><i class="fa-solid fa-upload"></i> Upload PNG Logo</label>
           <div class="logo-badge" id="logoBadge"><i class="fa-solid fa-circle-check"></i><span id="logoMsg">Logo loaded</span></div>
+          
+          <div class="field-lbl">Quick Position</div>
+          <div class="wm-pos-grid">
+            <button class="wm-pos-btn" onclick="setWmPos(10,10)" title="Top Left"><i class="fa-solid fa-arrow-up-left"></i>&#8598;</button>
+            <button class="wm-pos-btn" onclick="setWmPos(90,10)" title="Top Right"><i class="fa-solid fa-arrow-up-right"></i>&#8599;</button>
+            <button class="wm-pos-btn" onclick="setWmPos(10,90)" title="Bottom Left"><i class="fa-solid fa-arrow-down-left"></i>&#8601;</button>
+            <button class="wm-pos-btn" onclick="setWmPos(90,90)" title="Bottom Right"><i class="fa-solid fa-arrow-down-right"></i>&#8600;</button>
+          </div>
+
           <div class="sl-row"><div class="sl-lbl">Size<span class="val" id="wmSzV">30%</span></div><input type="range" id="wmSz" min="5" max="90" value="30"></div>
           <div class="sl-row"><div class="sl-lbl">Opacity<span class="val" id="wmOpV">80%</span></div><input type="range" id="wmOp" min="10" max="100" value="80"></div>
           <div class="two-col">
@@ -497,12 +522,15 @@ select{cursor:pointer;-webkit-appearance:none;appearance:none;
             <button class="cp-btn" onclick="copyText('captionOut',this)">Copy</button>
           </div>
           <div id="htSection" style="display:none">
-            <div class="field-lbl" style="color:var(--acc)">Hashtags</div>
-            <div class="out-wrap">
-              <textarea class="out-area ht-area" id="htOut" rows="4" placeholder="Hashtags..."></textarea>
-              <button class="cp-btn" onclick="copyText('htOut',this)">Copy</button>
+            <div class="field-lbl" style="color:var(--acc)">Hashtags (Click to copy)</div>
+            <div class="ht-pills-wrap" id="htPillsContainer">
+               <!-- generated hashtags go here -->
             </div>
-            <button class="regen-btn" onclick="regenHt()"><i class="fa-solid fa-rotate"></i> Regenerate Hashtags</button>
+            <textarea class="out-area ht-area" id="htOut" rows="2" style="display:none"></textarea>
+            <div style="display:flex;gap:10px;margin-top:12px;">
+              <button class="regen-btn" style="flex:1;margin-bottom:0;" onclick="copyText('htOut',this)"><i class="fa-regular fa-copy"></i> Copy All</button>
+              <button class="regen-btn" style="flex:1;margin-bottom:0;" onclick="regenHt()"><i class="fa-solid fa-rotate"></i> Regenerate</button>
+            </div>
           </div>
         </div>
 
@@ -691,7 +719,15 @@ window.addEventListener('DOMContentLoaded',function(){
 document.getElementById('baseImgInput').addEventListener('change',function(e){
   var f=e.target.files[0];if(!f)return;
   var r=new FileReader();
-  r.onload=function(ev){var img=new Image();img.onload=function(){S.base=img;canvas.style.display='block';document.getElementById('upLabel').style.display='none';resetZoom();draw();openCard('presets');showPage('edit');};img.src=ev.target.result;};
+  r.onload=function(ev){var img=new Image();img.onload=function(){
+    S.base=img;
+    canvas.style.display='block';
+    canvas.classList.remove('img-in-anim');
+    void canvas.offsetWidth; // trigger reflow
+    canvas.classList.add('img-in-anim');
+    document.getElementById('upLabel').style.display='none';
+    resetZoom();draw();openCard('presets');showPage('edit');
+  };img.src=ev.target.result;};
   r.readAsDataURL(f);e.target.value='';
 });
 document.getElementById('logoInput').addEventListener('change',function(e){
@@ -740,6 +776,12 @@ function switchWmTab(t){S.wmTab=t;document.getElementById('tabLogo').classList.t
 function pickFont(el,f){S.font=f;document.querySelectorAll('.font-btn').forEach(function(b){b.classList.remove('active');});el.classList.add('active');draw();}
 function pickClr(el,c){S.color=c;document.querySelectorAll('.swatch').forEach(function(b){b.classList.remove('active');});el.classList.add('active');draw();}
 function pickCustomClr(v){S.color=v;draw();}
+function setWmPos(x,y){
+  S.wmX=x;S.wmY=y;
+  document.getElementById('wmX').value=x;document.getElementById('wmXV').textContent=x+'%';
+  document.getElementById('wmY').value=y;document.getElementById('wmYV').textContent=y+'%';
+  draw();
+}
 
 /* CARDS */
 function toggleCard(id){
@@ -852,7 +894,11 @@ async function runAI(){
     var parsed=JSON.parse(clean);
     document.getElementById('captionOut').value=parsed.caption||'';
     document.getElementById('captionResult').style.display='block';
-    if(parsed.hashtags){document.getElementById('htOut').value=parsed.hashtags;document.getElementById('htSection').style.display='block';}
+    if(parsed.hashtags){
+      document.getElementById('htOut').value=parsed.hashtags;
+      document.getElementById('htSection').style.display='block';
+      renderHashtagPills(parsed.hashtags);
+    }
     else{document.getElementById('htSection').style.display='none';}
   }catch(e){
     document.getElementById('captionOut').value='Error: '+e.message;
@@ -864,10 +910,39 @@ async function runAI(){
 
 async function regenHt(){
   var plant=document.getElementById('plantName').value.trim()||'Anthurium Plant';
-  var el=document.getElementById('htOut');el.value='Regenerating...';
+  var btn=event.currentTarget,ot=btn.innerHTML;
+  btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i>';
   var htMap={english:'15-20 English hashtags',mixed:'English and Sinhala transliterated hashtags',niche:'10 niche plant hashtags'};
-  try{var raw=await callAI('Generate '+htMap[S.hashtag]+' for Sri Lankan plant seller: '+plant+'. ONLY hashtags separated by spaces.');el.value=raw.trim();}
-  catch(e){el.value='Error: '+e.message;}
+  try{
+    var raw=await callAI('Generate '+htMap[S.hashtag]+' for Sri Lankan plant seller: '+plant+'. ONLY output hashtags separated by spaces.');
+    document.getElementById('htOut').value=raw.trim();
+    renderHashtagPills(raw.trim());
+  }
+  catch(e){document.getElementById('htOut').value='Error: '+e.message;}
+  btn.innerHTML=ot;
+}
+
+function renderHashtagPills(htStr){
+  var cont = document.getElementById('htPillsContainer');
+  cont.innerHTML = '';
+  var tags = htStr.split(/[\s,]+/).filter(function(t){return t.trim().length>1;});
+  tags.forEach(function(tag){
+    if(!tag.startsWith('#')) tag='#'+tag;
+    var div = document.createElement('div');
+    div.className = 'ht-pill';
+    div.textContent = tag;
+    div.onclick = function(){
+      navigator.clipboard.writeText(tag).then(function(){
+        div.classList.add('copied');
+        div.textContent = 'Copied!';
+        setTimeout(function(){
+          div.classList.remove('copied');
+          div.textContent = tag;
+        }, 1500);
+      });
+    };
+    cont.appendChild(div);
+  });
 }
 
 function quickCaption(){
@@ -886,21 +961,57 @@ function quickCaption(){
 }
 
 function copyText(id,btn){
-  var text=document.getElementById(id).value;if(!text)return;
-  navigator.clipboard.writeText(text).then(function(){var o=btn.textContent;btn.textContent='Copied!';btn.style.color='var(--acc)';setTimeout(function(){btn.textContent=o;btn.style.color='';},2000);});
+  var text=document.getElementById(id).value,ot=btn.innerHTML;
+  if(!text)return;
+  navigator.clipboard.writeText(text).then(function(){
+    btn.innerHTML='<i class="fa-solid fa-check"></i> Copied!';
+    setTimeout(function(){btn.innerHTML=ot;},2000);
+  });
 }
 
-function saveImg(){
-  if(!S.base){alert('Please upload a photo first!');return;}
-  var data=canvas.toDataURL('image/jpeg',0.96);
+async function saveImg(){
+  if(!S.base){alert('Upload photo first!');return;}
+  var sc=3; // Scale factor for HD saving
+  var ocv=document.createElement('canvas');
+  ocv.width=S.base.naturalWidth*sc;ocv.height=S.base.naturalHeight*sc;
+  var octx=ocv.getContext('2d');
+  
+  octx.filter='brightness('+S.bright+'%) contrast('+S.contrast+'%) saturate('+S.sat+'%)';
+  octx.drawImage(S.base,0,0,ocv.width,ocv.height); octx.filter='none';
+  if(S.warmth>0){octx.save();octx.globalAlpha=S.warmth/180;octx.fillStyle='#ff8800';octx.fillRect(0,0,ocv.width,ocv.height);octx.restore();}
+  else if(S.warmth<0){octx.save();octx.globalAlpha=Math.abs(S.warmth)/180;octx.fillStyle='#4488ff';octx.fillRect(0,0,ocv.width,ocv.height);octx.restore();}
+  
+  if(S.wmTab==='logo'&&S.logo){
+    var ww=ocv.width*(S.wmSz/100),wh=(S.logo.naturalHeight/S.logo.naturalWidth)*ww;
+    var wx=(ocv.width-ww)*(S.wmX/100),wy=(ocv.height-wh)*(S.wmY/100);
+    octx.save();octx.globalAlpha=S.wmOp/100;octx.drawImage(S.logo,wx,wy,ww,wh);octx.restore();
+  }
+  if(S.wmTab==='text'){
+    var txt=document.getElementById('wmTxt').value||'Urban Leaf';
+    var fs=Math.max(16,Math.round(ocv.width*S.tSz/1000));
+    octx.save();octx.translate(ocv.width*(S.tX/100),ocv.height*(S.tY/100));
+    octx.rotate(S.tRot*Math.PI/180);octx.font='bold '+fs+'px '+S.font;
+    octx.textAlign='center';octx.textBaseline='middle';octx.globalAlpha=S.tOp/100;
+    octx.shadowColor='rgba(0,0,0,0.65)';octx.shadowBlur=fs*0.3;
+    octx.fillStyle=S.color;octx.fillText(txt,0,0);octx.restore();
+  }
+
+  var dUrl=ocv.toDataURL('image/jpeg',1.0);
   try{
-    if(typeof piexif!=='undefined'){
-      var author=document.getElementById('metaAuthor').value;
-      var eo={'0th':{}};eo['0th'][piexif.ImageIFD.Artist]=author;eo['0th'][piexif.ImageIFD.Copyright]=author;eo['0th'][piexif.ImageIFD.Software]='Urban Leaf Studio Pro';
-      data=piexif.insert(piexif.dump(eo),data);
+    if(typeof piexif!=='undefined'&&document.getElementById('metaAuthor')){
+      var author=document.getElementById('metaAuthor').value||'Urban Leaf';
+      var zeroth={};
+      zeroth[piexif.ImageIFD.Artist]=author;
+      zeroth[piexif.ImageIFD.Copyright]=author;
+      zeroth[piexif.ImageIFD.Software]="Urban Leaf Pro";
+      var exifObj={"0th":zeroth};
+      var exifBytes=piexif.dump(exifObj);
+      dUrl=piexif.insert(exifBytes,dUrl);
     }
-  }catch(e){}
-  var a=document.createElement('a');a.download='UrbanLeaf_'+Date.now()+'.jpg';a.href=data;a.click();
+  }catch(e){console.log('EXIF err',e);}
+
+  var a=document.createElement('a');
+  a.download='UL_Edited_'+Date.now()+'.jpg';a.href=dUrl;a.click();
 }
 </script>
 </body>
