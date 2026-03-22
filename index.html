@@ -471,6 +471,7 @@ textarea{resize:none;}
           <div class="fl">Provider</div>
           <select class="provider-sel" id="aiProvider" onchange="onProviderChange()">
             <option value="groq">Groq &#10003; Best Free — Sri Lanka OK</option>
+            <option value="deepseek">DeepSeek (deepseek-chat)</option>
             <option value="openrouter">OpenRouter (Free models)</option>
             <option value="anthropic">Anthropic Claude ($5 free)</option>
             <option value="openai">OpenAI ChatGPT (Paid)</option>
@@ -906,11 +907,12 @@ var htMap={english:'15-20 relevant English hashtags for maximum reach',mixed:'Mi
 
 /* ---- PROVIDER CONFIG ---- */
 var PROVIDERS = {
-  groq:       { url:'https://api.groq.com/openai/v1/chat/completions',      model:'llama-3.1-8b-instant',        type:'openai', link:'https://console.groq.com/keys',          linkTxt:'Free key: console.groq.com/keys',          ph:'gsk_...' },
-  gemini:     { url:'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent', model:'', type:'gemini', link:'https://aistudio.google.com/app/apikey', linkTxt:'Sri Lanka ෙ quota limit — Groq use කරන්න', ph:'AIza...' },
-  openrouter: { url:'https://openrouter.ai/api/v1/chat/completions',        model:'meta-llama/llama-3.1-8b-instruct:free', type:'openai', link:'https://openrouter.ai/keys', linkTxt:'Free key: openrouter.ai/keys',              ph:'sk-or-...' },
-  anthropic:  { url:'https://api.anthropic.com/v1/messages',                model:'claude-haiku-4-5-20251001',   type:'anthropic', link:'https://console.anthropic.com',         linkTxt:'console.anthropic.com ($5 free)',          ph:'sk-ant-...' },
-  openai:     { url:'https://api.openai.com/v1/chat/completions',           model:'gpt-4o-mini',                 type:'openai', link:'https://platform.openai.com/api-keys',    linkTxt:'platform.openai.com/api-keys',            ph:'sk-...' }
+  groq:       { url:'https://api.groq.com/openai/v1/chat/completions',      model:'llama-3.1-8b-instant',               type:'openai',    link:'https://console.groq.com/keys',           linkTxt:'Free key: console.groq.com/keys',        ph:'gsk_...' },
+  deepseek:   { url:'https://api.deepseek.com/v1/chat/completions',         model:'deepseek-chat',                      type:'openai',    link:'https://platform.deepseek.com/api_keys',  linkTxt:'$2 free: platform.deepseek.com',         ph:'sk-...' },
+  gemini:     { url:'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent', model:'', type:'gemini', link:'https://aistudio.google.com/app/apikey',  linkTxt:'Free key: aistudio.google.com',          ph:'AIza...' },
+  openrouter: { url:'https://openrouter.ai/api/v1/chat/completions',        model:'meta-llama/llama-3.1-8b-instruct:free', type:'openai', link:'https://openrouter.ai/keys',             linkTxt:'Free key: openrouter.ai/keys',           ph:'sk-or-...' },
+  anthropic:  { url:'https://api.anthropic.com/v1/messages',                model:'claude-haiku-4-5-20251001',          type:'anthropic', link:'https://console.anthropic.com',           linkTxt:'console.anthropic.com ($5 free)',        ph:'sk-ant-...' },
+  openai:     { url:'https://api.openai.com/v1/chat/completions',           model:'gpt-4o-mini',                        type:'openai',    link:'https://platform.openai.com/api-keys',    linkTxt:'platform.openai.com/api-keys',          ph:'sk-...' }
 };
 
 function onProviderChange() {
