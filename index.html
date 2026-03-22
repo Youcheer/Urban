@@ -293,6 +293,8 @@ select{cursor:pointer;-webkit-appearance:none;appearance:none;
     </div>
   </div>
   <div class="hdr-right">
+    <button class="hdr-btn" onclick="saveImg()" title="Save HD" style="background:var(--grn);color:#000;border-color:var(--grn);border-radius:12px;width:auto;padding:0 14px;font-size:14px;font-weight:700;"><i class="fa-solid fa-download" style="margin-right:6px;"></i>Save HD</button>
+    <button class="hdr-btn" onclick="showPage('settings')" title="Settings"><i class="fa-solid fa-gear"></i></button>
     <label for="baseImgInput" class="hdr-btn" title="Upload photo"><i class="fa-solid fa-camera"></i></label>
   </div>
 </header>
@@ -347,6 +349,11 @@ select{cursor:pointer;-webkit-appearance:none;appearance:none;
         </details>
       </div>
     </div>
+
+  </div><!-- /page-edit -->
+
+  <!-- PAGE: WATERMARK -->
+  <div class="page" id="page-watermark">
 
     <!-- Watermark Card -->
     <div class="card">
@@ -422,7 +429,7 @@ select{cursor:pointer;-webkit-appearance:none;appearance:none;
       </div>
     </div>
 
-  </div><!-- /page-edit -->
+  </div><!-- /page-watermark -->
 
   <!-- PAGE: AI CAPTION -->
   <div class="page" id="page-ai">
@@ -608,17 +615,11 @@ select{cursor:pointer;-webkit-appearance:none;appearance:none;
   <button class="tab-nav-btn active" id="nav-edit" onclick="showPage('edit')">
     <i class="fa-solid fa-wand-magic-sparkles"></i>Edit
   </button>
+  <button class="tab-nav-btn" id="nav-watermark" onclick="showPage('watermark')">
+    <i class="fa-solid fa-stamp"></i>Watermark
+  </button>
   <button class="tab-nav-btn" id="nav-ai" onclick="showPage('ai')">
     <i class="fa-solid fa-robot"></i>Caption
-  </button>
-  <button class="save-tab-btn" onclick="saveImg()">
-    <div class="save-tab-inner">
-      <i class="fa-solid fa-download"></i>
-      <span>Save HD</span>
-    </div>
-  </button>
-  <button class="tab-nav-btn" id="nav-settings" onclick="showPage('settings')">
-    <i class="fa-solid fa-gear"></i>Settings
   </button>
 </nav>
 
