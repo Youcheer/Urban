@@ -833,7 +833,7 @@ async function runAI(){
   var toneMap={
     viral:'Exciting attention-grabbing caption. Strong hook. Plant emojis throughout.',
     professional:'Professional trustworthy elegant tone.',
-    sinhala:'Natural Sinhala+English mix. Casual Facebook style. Like real Sri Lankan sellers write. Example: "Rare anthurium! Island-wide deliver available. Bank transfer only. Inbox karanna."',
+    sinhala:'Generate ALMOST ENTIRELY in fluent Sinhala script. IMPORTANT: Only use English words for standard terms like "Bank", "COD", "Inbox", "Courier". The rest MUST be strictly in Sinhala script.',
     short:'Very short punchy. Max 4 lines only.'
   };
   var platMap={facebook:'Facebook plant shop post.',instagram:'Instagram aesthetic storytelling.',whatsapp:'Short WhatsApp status.'};
@@ -844,7 +844,7 @@ async function runAI(){
     ' Platform: '+platMap[S.platform]+
     ' Tone: '+toneMap[S.tone]+
     ' Hashtags: '+htMap[S.hashtag]+'.'+
-    ' MUST INCLUDE: 1)Island-wide courier Sri Lanka. 2)Bank transfer only NO COD. 3)Inbox for details. 4)Plant emojis. 5)Use ONLY given plant info.'+
+    ' MUST INCLUDE: 1)Delivery info (Island-wide courier). 2)Payment info (Bank transfer only, NO COD). 3)Contact call-to-action (Inbox us). 4)Plant emojis. 5)Use ONLY given plant info.'+
     ' Reply ONLY valid JSON no markdown: {"caption":"text","hashtags":"#tag1 #tag2"}';
   try{
     var raw=await callAI(prompt);
