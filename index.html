@@ -4,340 +4,634 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Urban Leaf Studio Pro</title>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/piexifjs/1.0.6/piexif.js" defer></script>
 <style>
 :root{
-  --bg:#0f0f0f; --surf:#1a1a1a; --surf2:#242424; --bord:#2e2e2e;
-  --grn:#22c55e; --grn-dim:#166534; --grn-glow:rgba(34,197,94,0.12);
-  --txt:#f0f0f0; --txt2:#888; --acc:#4ade80;
-  --hdr:50px; --img-h:42vh; --bar:62px;
+  --bg:#0a0a0c;--surf:rgba(24,24,28,0.7);--surf2:#1f1f23;--bord:rgba(255,255,255,0.08);
+  --grn:#10b981;--grn-d:#059669;--grn-glow:rgba(16,185,129,0.15);
+  --txt:#f8fafc;--txt2:#94a3b8;--acc:#34d399;--red:#ef4444;
+  --hdr:64px;--img-h:42vh;--nav:72px;
 }
-*{box-sizing:border-box;margin:0;padding:0;}
-html,body{background:var(--bg);color:var(--txt);font-family:"DM Sans",sans-serif;height:100%;overflow:hidden;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{background:var(--bg);color:var(--txt);font-family:"Outfit",sans-serif;height:100%;overflow:hidden;}
 
-.hdr{position:fixed;top:0;left:0;right:0;z-index:300;height:var(--hdr);background:rgba(15,15,15,0.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--bord);padding:0 14px;display:flex;align-items:center;justify-content:space-between;}
-.hdr-logo{display:flex;align-items:center;gap:9px;}
-.hdr-logo img{height:32px;object-fit:contain;}
-.hdr-t{font-family:"Playfair Display",serif;font-size:17px;color:var(--acc);}
-.hdr-s{font-size:9px;color:var(--txt2);letter-spacing:1px;text-transform:uppercase;}
-.cam-btn{background:var(--grn);color:#000;border:none;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;flex-shrink:0;}
+/* HEADER */
+.hdr{position:fixed;top:0;left:0;right:0;z-index:400;height:var(--hdr);
+  background:rgba(10,10,12,0.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--bord);
+  padding:0 20px;display:flex;align-items:center;justify-content:space-between;
+  box-shadow:0 10px 30px rgba(0,0,0,0.5);}
+.hdr-left{display:flex;align-items:center;gap:12px;}
+.hdr-logo{height:34px;object-fit:contain;border-radius:8px;}
+.hdr-t{font-family:"Playfair Display",serif;font-size:19px;color:var(--txt);line-height:1.1;letter-spacing:0.5px;}
+.hdr-s{font-size:10px;color:var(--acc);letter-spacing:1.5px;text-transform:uppercase;font-weight:600;}
+.hdr-right{display:flex;gap:10px;align-items:center;}
+.hdr-btn{background:rgba(255,255,255,0.05);border:1px solid var(--bord);border-radius:12px;
+  width:42px;height:42px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--txt);font-size:16px;transition:all .3s cubic-bezier(0.4,0,0.2,1);position:relative;}
+.hdr-btn:hover,.hdr-btn.active{background:var(--grn);color:#000;border-color:var(--grn);transform:translateY(-2px);box-shadow:0 4px 12px var(--grn-glow);}
 
-#imgPanel{position:fixed;top:var(--hdr);left:0;right:0;height:var(--img-h);background:#111;overflow:hidden;z-index:200;display:flex;align-items:center;justify-content:center;touch-action:none;}
-#upLabel{display:flex;flex-direction:column;align-items:center;gap:10px;color:var(--txt2);cursor:pointer;padding:20px;text-align:center;}
-#upLabel i{font-size:48px;color:var(--bord);}
-#upLabel p{font-size:14px;}
-#upLabel small{font-size:11px;color:#555;}
-#mainCanvas{position:absolute;width:100%;height:100%;object-fit:contain;display:none;transform-origin:center center;will-change:transform;border-radius:0;}
-#zoomHint{position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.55);color:#fff;font-size:11px;padding:4px 9px;border-radius:20px;display:none;pointer-events:none;z-index:10;}
-#zoomHint.show{display:block;}
-#zoomReset{position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);color:var(--acc);border:1px solid var(--grn-dim);border-radius:20px;font-size:11px;padding:4px 10px;cursor:pointer;display:none;z-index:10;font-family:inherit;}
-#zoomReset.show{display:block;}
+/* IMAGE PANEL */
+#imgPanel{position:fixed;top:var(--hdr);left:0;right:0;height:var(--img-h);
+  background:radial-gradient(circle at center, #1a1a20, #0a0a0c);overflow:hidden;z-index:200;
+  display:flex;align-items:center;justify-content:center;touch-action:none;
+  box-shadow:inset 0 -10px 30px rgba(0,0,0,0.5);}
+#upLabel{display:flex;flex-direction:column;align-items:center;gap:16px;
+  color:var(--txt2);cursor:pointer;padding:30px;text-align:center;
+  background:rgba(255,255,255,0.02);border:1px dashed var(--bord);border-radius:24px;
+  transition:all 0.3s;backdrop-filter:blur(10px);}
+#upLabel:hover{background:rgba(255,255,255,0.04);border-color:var(--grn);color:var(--txt);}
+#upLabel .up-icon{width:72px;height:72px;border-radius:20px;background:rgba(16,185,129,0.1);
+  display:flex;align-items:center;justify-content:center;
+  font-size:28px;color:var(--grn);box-shadow:0 8px 24px rgba(0,0,0,0.2);}
+#upLabel p{font-size:16px;font-weight:600;color:var(--txt);}
+#upLabel small{font-size:12px;color:var(--txt2);letter-spacing:0.5px;}
+#mainCanvas{position:absolute;width:100%;height:100%;object-fit:contain;display:none;
+  transform-origin:center center;will-change:transform;}
 
-#ctrlPanel{position:fixed;top:calc(var(--hdr) + var(--img-h));left:0;right:0;bottom:var(--bar);overflow-y:auto;-webkit-overflow-scrolling:touch;z-index:100;background:var(--bg);}
-.cards{padding:10px 14px;display:flex;flex-direction:column;gap:10px;}
+/* Zoom UI */
+.zoom-pill{position:absolute;bottom:16px;right:16px;z-index:10;
+  background:rgba(10,10,12,0.7);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,0.1);border-radius:30px;
+  padding:8px 14px;font-size:12px;color:#fff;
+  display:flex;align-items:center;gap:10px;pointer-events:none;opacity:0;transition:opacity .3s;}
+.zoom-pill.show{opacity:1;pointer-events:auto;box-shadow:0 4px 15px rgba(0,0,0,0.5);}
+#zoomLevel{font-weight:700;color:var(--acc);letter-spacing:0.5px;}
+#zoomResetBtn{pointer-events:auto;cursor:pointer;color:var(--bg);font-size:11px;font-weight:600;
+  padding:4px 10px;border-radius:12px;background:var(--acc);text-transform:uppercase;}
 
-.save-bar{position:fixed;bottom:0;left:0;right:0;height:var(--bar);z-index:300;background:rgba(15,15,15,.97);border-top:1px solid var(--bord);padding:10px 14px;display:flex;gap:10px;align-items:center;}
-.save-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#000;font-weight:700;font-size:15px;border:none;border-radius:12px;padding:0 16px;height:42px;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(34,197,94,.3);}
-.upload-btn-bar{flex-shrink:0;width:42px;height:42px;background:var(--surf2);border:1px solid var(--bord);border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--txt2);font-size:16px;}
+/* BOTTOM TAB NAV */
+.tab-nav{position:fixed;bottom:20px;left:20px;right:20px;height:var(--nav);z-index:400;
+  background:rgba(20,20,24,0.85);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border:1px solid rgba(255,255,255,0.08);border-radius:36px;
+  display:flex;align-items:stretch;box-shadow:0 20px 40px rgba(0,0,0,0.6);padding:0 10px;}
+.tab-nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;cursor:pointer;color:var(--txt2);font-size:10px;font-weight:600;
+  letter-spacing:.5px;text-transform:uppercase;border:none;background:transparent;
+  transition:all .3s cubic-bezier(0.4,0,0.2,1);position:relative;border-radius:24px;margin:5px 0;}
+.tab-nav-btn i{font-size:20px;transition:all .3s;}
+.tab-nav-btn:hover{color:var(--txt);background:rgba(255,255,255,0.03);}
+.tab-nav-btn.active{color:var(--acc);background:var(--grn-glow);}
+.tab-nav-btn.active i{transform:translateY(-2px);filter:drop-shadow(0 2px 4px rgba(16,185,129,0.4));}
+.save-tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;border:none;background:transparent;position:relative;margin:0 5px;transform:translateY(-15px);}
+.save-tab-inner{background:linear-gradient(135deg,var(--grn),#047857);
+  border-radius:50%;width:64px;height:64px;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:3px;box-shadow:0 10px 25px rgba(16,185,129,0.5);
+  transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);border:4px solid var(--bg);}
+.save-tab-btn:hover .save-tab-inner {transform:scale(1.05) translateY(-5px);box-shadow:0 15px 30px rgba(16,185,129,0.6);}
+.save-tab-inner i{font-size:22px;color:#fff;}
+.save-tab-inner span{font-size:9px;font-weight:700;letter-spacing:.5px;color:#fff;text-transform:uppercase;}
 
-.card{background:var(--surf);border:1px solid var(--bord);border-radius:14px;overflow:hidden;}
-.card-hdr{display:flex;align-items:center;justify-content:space-between;padding:13px 15px;cursor:pointer;user-select:none;transition:background .15s;}
-.card-hdr:hover{background:var(--surf2);}
-.card-hdr-l{display:flex;align-items:center;gap:11px;}
-.card-ico{width:32px;height:32px;border-radius:8px;background:var(--grn-dim);display:flex;align-items:center;justify-content:center;}
-.card-ico i{color:var(--grn);font-size:14px;}
-.card-ttl{font-size:14px;font-weight:600;}
-.card-body{display:none;padding:14px 15px;border-top:1px solid var(--bord);}
-.card-body.open{display:block;}
+/* SCROLL PANEL */
+#ctrlPanel{position:fixed;top:calc(var(--hdr) + var(--img-h));left:0;right:0;
+  bottom:0;overflow-y:auto;-webkit-overflow-scrolling:touch;z-index:100;background:var(--bg);padding-bottom:110px;}
+.page{display:none;padding:20px;}
+.page.active{display:block;animation:fadeIn 0.3s ease-out forwards;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
 
-.tabs{display:flex;background:var(--bg);border-radius:9px;padding:3px;margin-bottom:13px;gap:3px;}
-.tab{flex:1;padding:7px;border-radius:7px;border:none;background:transparent;color:var(--txt2);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;font-family:inherit;}
-.tab.active{background:var(--grn);color:#000;}
+/* CARDS */
+.card{background:var(--surf);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--bord);border-radius:20px;overflow:hidden;margin-bottom:16px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.2);transition:all 0.3s cubic-bezier(0.4,0,0.2,1);}
+.card:hover{border-color:rgba(255,255,255,0.12);box-shadow:0 12px 40px rgba(0,0,0,0.3);}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;
+  padding:18px 20px;cursor:pointer;user-select:none;transition:background .2s;}
+.card-hdr:active{background:rgba(255,255,255,0.02);}
+.card-hdr-l{display:flex;align-items:center;gap:14px;}
+.card-ico{width:42px;height:42px;border-radius:12px;background:rgba(16,185,129,0.15);
+  border:1px solid rgba(16,185,129,0.2);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:inset 0 2px 4px rgba(255,255,255,0.1);}
+.card-ico i{color:var(--acc);font-size:18px;filter:drop-shadow(0 2px 4px rgba(0,0,0,0.2));}
+.card-ttl{font-size:16px;font-weight:600;letter-spacing:0.3px;}
+.card-sub{font-size:12px;color:var(--txt2);margin-top:3px;}
+.card-arr{color:var(--txt2);font-size:14px;transition:transform .3s cubic-bezier(0.4,0,0.2,1);flex-shrink:0;}
+.card-arr.open{transform:rotate(180deg);color:var(--acc);}
+.card-body{display:none;padding:0 20px 20px 20px;}
+.card-body.open{display:block;animation:slideDown 0.3s ease-out forwards;}
+@keyframes slideDown{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
 
-.preset-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:13px;}
-.preset-btn{background:var(--surf2);border:1.5px solid var(--bord);border-radius:11px;padding:11px 7px;text-align:center;cursor:pointer;transition:all .15s;color:var(--txt);}
-.preset-btn:hover,.preset-btn.active{border-color:var(--grn);}
-.preset-btn.active{background:var(--grn-glow);}
-.preset-btn i{display:block;font-size:18px;margin-bottom:4px;}
-.preset-btn span{font-size:11px;font-weight:500;}
+/* SECTION LABEL */
+.sec-lbl{font-size:11px;color:var(--txt2);text-transform:uppercase;letter-spacing:1px;
+  font-weight:700;margin-bottom:12px;margin-top:8px;}
 
-.sl-row{margin-bottom:12px;}
-.sl-lbl{display:flex;justify-content:space-between;font-size:12px;color:var(--txt2);margin-bottom:5px;}
-.sl-lbl span{color:var(--grn);font-weight:600;}
-input[type=range]{width:100%;height:4px;border-radius:2px;-webkit-appearance:none;appearance:none;background:var(--bord);outline:none;cursor:pointer;}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--grn);cursor:pointer;box-shadow:0 2px 6px rgba(34,197,94,.4);}
+/* PRESET GRID */
+.preset-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;padding-top:10px;}
+.preset-btn{background:rgba(255,255,255,0.03);border:1px solid var(--bord);border-radius:16px;
+  padding:16px 8px;text-align:center;cursor:pointer;transition:all .3s cubic-bezier(0.4,0,0.2,1);color:var(--txt);
+  display:flex;flex-direction:column;align-items:center;gap:8px;}
+.preset-btn:hover{background:rgba(255,255,255,0.06);transform:translateY(-2px);}
+.preset-btn:active,.preset-btn.active{border-color:var(--grn);background:var(--grn-glow);box-shadow:0 8px 20px var(--grn-glow);}
+.preset-btn i{font-size:24px;filter:drop-shadow(0 2px 5px rgba(0,0,0,0.3));}
+.preset-btn span{font-size:11px;font-weight:600;color:var(--txt2);letter-spacing:0.5px;}
+.preset-btn.active span{color:var(--txt);}
 
-.font-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px;}
-.font-btn{background:var(--surf2);border:1.5px solid var(--bord);border-radius:10px;padding:9px 7px;text-align:center;cursor:pointer;transition:all .15s;color:var(--txt);}
-.font-btn:hover,.font-btn.active{border-color:var(--grn);}
-.font-btn.active{background:var(--grn-glow);color:var(--acc);}
-.font-btn .fp{font-size:15px;margin-bottom:2px;}
-.font-btn .fn{font-size:10px;color:var(--txt2);}
+/* SLIDERS */
+.sl-row{margin-bottom:18px;background:rgba(0,0,0,0.2);padding:12px 16px;border-radius:14px;border:1px solid rgba(255,255,255,0.03);}
+.sl-lbl{display:flex;justify-content:space-between;font-size:13px;font-weight:500;color:var(--txt);margin-bottom:12px;}
+.sl-lbl .val{color:var(--acc);font-weight:700;font-family:monospace;font-size:14px;background:rgba(16,185,129,0.15);padding:2px 6px;border-radius:6px;}
+input[type=range]{width:100%;height:6px;border-radius:3px;
+  -webkit-appearance:none;appearance:none;background:rgba(255,255,255,0.1);outline:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;
+  border-radius:50%;background:#fff;cursor:pointer;border:4px solid var(--grn);
+  box-shadow:0 2px 10px rgba(0,0,0,0.3);transition:transform 0.1s;}
+input[type=range]::-webkit-slider-thumb:active{transform:scale(1.15);}
 
-.clr-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px;align-items:center;}
-.swatch{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2.5px solid transparent;transition:all .15s;flex-shrink:0;}
-.swatch.active{border-color:var(--grn);transform:scale(1.18);}
+/* TABS (logo/text) */
+.wm-tabs{display:flex;background:rgba(0,0,0,0.3);border-radius:14px;padding:5px;
+  margin-bottom:20px;gap:5px;border:1px solid rgba(255,255,255,0.05);}
+.wm-tab{flex:1;padding:12px;border-radius:10px;border:none;background:transparent;
+  color:var(--txt2);font-size:14px;font-weight:600;cursor:pointer;transition:all .3s;font-family:inherit;}
+.wm-tab:hover{color:var(--txt);}
+.wm-tab.active{background:var(--grn);color:#000;box-shadow:0 4px 12px rgba(16,185,129,0.3);}
 
-.logo-btn{display:flex;align-items:center;justify-content:center;gap:8px;background:var(--surf2);border:1.5px dashed var(--bord);border-radius:10px;padding:11px;color:var(--txt2);cursor:pointer;font-size:13px;width:100%;margin-bottom:11px;transition:all .15s;}
-.logo-btn:hover{border-color:var(--grn);color:var(--txt);}
-.logo-ok{display:none;align-items:center;gap:6px;background:rgba(34,197,94,.1);border:1px solid var(--grn-dim);border-radius:8px;padding:7px 11px;color:var(--acc);font-size:12px;margin-bottom:11px;}
-.logo-ok.show{display:flex;}
+/* FONT GRID */
+.font-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+.font-btn{background:rgba(255,255,255,0.03);border:1px solid var(--bord);border-radius:14px;
+  padding:14px 10px;text-align:center;cursor:pointer;transition:all .2s;color:var(--txt);}
+.font-btn:hover{background:rgba(255,255,255,0.06);}
+.font-btn.active{border-color:var(--grn);background:var(--grn-glow);color:var(--acc);box-shadow:0 4px 15px var(--grn-glow);}
+.font-btn .fp{font-size:20px;margin-bottom:6px;filter:drop-shadow(0 2px 2px rgba(0,0,0,0.5));}
+.font-btn .fn{font-size:11px;color:var(--txt2);font-weight:500;}
 
-.fl{font-size:11px;color:var(--txt2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;}
-input[type=text],textarea{width:100%;background:var(--bg);border:1px solid var(--bord);border-radius:10px;padding:9px 11px;color:var(--txt);font-family:inherit;font-size:14px;outline:none;margin-bottom:11px;}
-input[type=text]:focus,textarea:focus{border-color:var(--grn);}
-textarea{resize:none;}
+/* COLOR ROW */
+.clr-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;align-items:center;background:rgba(0,0,0,0.2);padding:14px;border-radius:16px;}
+.swatch{width:36px;height:36px;border-radius:50%;cursor:pointer;
+  border:3px solid transparent;transition:all .3s cubic-bezier(0.4,0,0.2,1);flex-shrink:0;box-shadow:0 4px 10px rgba(0,0,0,0.3);}
+.swatch:hover{transform:scale(1.1);}
+.swatch.active{border-color:var(--txt);transform:scale(1.2);box-shadow:0 0 15px currentColor;}
 
-.chip-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:11px;}
-.chip{padding:5px 11px;border-radius:18px;font-size:12px;font-weight:500;border:1px solid var(--bord);cursor:pointer;background:var(--surf2);color:var(--txt2);transition:all .15s;}
-.chip.active{background:rgba(34,197,94,.15);border-color:var(--grn);color:var(--acc);}
+/* LOGO UPLOAD */
+.upload-zone{display:flex;align-items:center;justify-content:center;gap:12px;
+  background:rgba(255,255,255,0.02);border:2px dashed rgba(255,255,255,0.1);border-radius:16px;
+  padding:20px;color:var(--txt);cursor:pointer;font-size:14px;width:100%;
+  margin-bottom:16px;transition:all .3s;font-weight:600;}
+.upload-zone i{font-size:20px;color:var(--acc);}
+.upload-zone:hover{border-color:var(--grn);background:rgba(16,185,129,0.05);}
+.upload-zone:active{transform:scale(0.98);}
+.logo-badge{display:none;align-items:center;gap:10px;
+  background:var(--grn-glow);border:1px solid rgba(16,185,129,0.3);
+  border-radius:12px;padding:12px 16px;color:var(--acc);font-size:13px;margin-bottom:16px;font-weight:500;}
+.logo-badge.show{display:flex;animation:fadeIn 0.3s ease-out;}
 
-.ai-btn{width:100%;padding:11px;border-radius:11px;border:none;background:linear-gradient(135deg,#22c55e,#16a34a);color:#000;font-weight:700;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;font-family:inherit;box-shadow:0 4px 14px rgba(34,197,94,.3);}
-.ai-btn:disabled{opacity:.4;cursor:not-allowed;}
-.q-btn{width:100%;padding:9px;border-radius:10px;border:1px solid var(--bord);background:var(--surf2);color:var(--txt2);font-size:13px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:11px;transition:all .15s;}
-.q-btn:hover{border-color:var(--grn);color:var(--txt);}
+/* FORM INPUTS */
+.field-lbl{font-size:12px;color:var(--txt2);text-transform:uppercase;letter-spacing:1px;
+  font-weight:700;margin-bottom:8px;}
+input[type=text],input[type=password],textarea,select{
+  width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);
+  border-radius:14px;padding:14px 16px;color:var(--txt);
+  font-family:inherit;font-size:15px;outline:none;margin-bottom:20px;
+  transition:all .3s;box-shadow:inset 0 2px 4px rgba(0,0,0,0.2);}
+input[type=text]:focus,input[type=password]:focus,textarea:focus,select:focus{
+  border-color:var(--grn);background:rgba(0,0,0,0.4);box-shadow:0 0 0 4px var(--grn-glow);}
+textarea{resize:none;line-height:1.6;}
+select{cursor:pointer;-webkit-appearance:none;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2334d399' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 16px center;}
 
-.out-wrap{position:relative;margin-bottom:8px;}
-.out-area{width:100%;background:var(--bg);border:1px solid var(--bord);border-radius:10px;padding:9px 42px 9px 11px;color:var(--txt);font-size:13px;line-height:1.6;min-height:52px;resize:none;font-family:inherit;outline:none;}
-.ht-area{background:rgba(34,197,94,.05);border-color:var(--grn-dim);}
-.cp-btn{position:absolute;bottom:8px;right:7px;background:var(--surf2);border:1px solid var(--bord);border-radius:7px;color:var(--txt2);padding:4px 8px;font-size:11px;cursor:pointer;transition:all .15s;}
-.cp-btn:hover{border-color:var(--grn);color:var(--acc);}
-.regen-btn{width:100%;padding:8px;border-radius:8px;border:1px solid var(--bord);background:transparent;color:var(--txt2);font-size:12px;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .15s;}
-.regen-btn:hover{border-color:var(--grn);color:var(--acc);}
+/* CHIPS */
+.chip-row{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;}
+.chip{padding:10px 16px;border-radius:24px;font-size:13px;font-weight:600;
+  border:1px solid rgba(255,255,255,0.1);cursor:pointer;background:rgba(255,255,255,0.03);
+  color:var(--txt2);transition:all .3s cubic-bezier(0.4,0,0.2,1);}
+.chip:hover{background:rgba(255,255,255,0.08);color:var(--txt);}
+.chip.active{background:var(--grn);border-color:var(--grn);color:#000;box-shadow:0 4px 12px rgba(16,185,129,0.3);}
 
-.ai-load{display:none;align-items:center;gap:11px;background:rgba(34,197,94,.07);border:1px solid var(--grn-dim);border-radius:10px;padding:11px;margin-bottom:9px;}
-.ai-load.show{display:flex;}
-.ai-load i{color:var(--grn);font-size:17px;animation:spin 1s linear infinite;}
-.ai-load-t{font-size:13px;color:var(--acc);}
-.ai-load-s{font-size:11px;color:var(--txt2);}
+/* BUTTONS */
+.btn-primary{width:100%;padding:16px;border-radius:16px;border:none;
+  background:linear-gradient(135deg,var(--grn),#047857);color:#fff;font-weight:700;
+  font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  gap:12px;margin-bottom:12px;font-family:inherit;letter-spacing:0.5px;
+  box-shadow:0 8px 20px rgba(16,185,129,0.3);transition:all .3s cubic-bezier(0.4,0,0.2,1);}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;box-shadow:none;}
+.btn-primary:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 12px 25px rgba(16,185,129,0.4);}
+.btn-primary:active:not(:disabled){transform:translateY(1px);}
+.btn-secondary{width:100%;padding:14px;border-radius:14px;border:1px solid rgba(255,255,255,0.1);
+  background:rgba(255,255,255,0.03);color:var(--txt);font-weight:600;font-size:15px;cursor:pointer;font-family:inherit;
+  display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:20px;
+  transition:all .3s;}
+.btn-secondary:hover{background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.2);}
+.btn-secondary:active{transform:scale(0.98);}
+
+/* OUTPUT */
+.out-wrap{position:relative;margin-bottom:16px;}
+.out-area{width:100%;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:16px;
+  padding:16px 60px 16px 16px;color:var(--txt);font-size:15px;line-height:1.7;
+  min-height:80px;resize:none;font-family:inherit;outline:none;}
+.out-area:focus{border-color:var(--acc);background:rgba(0,0,0,0.5);}
+.ht-area{background:var(--grn-glow);border-color:rgba(16,185,129,0.3);color:var(--acc);}
+.cp-btn{position:absolute;bottom:14px;right:14px;background:rgba(255,255,255,0.1);
+  border:none;border-radius:10px;color:var(--txt);
+  padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;transition:all .3s;}
+.cp-btn:hover{background:var(--acc);color:#000;}
+.cp-btn:active{transform:scale(0.95);}
+.regen-btn{width:100%;padding:12px;border-radius:12px;border:1px dashed rgba(255,255,255,0.2);
+  background:transparent;color:var(--txt2);font-size:14px;font-weight:600;cursor:pointer;
+  font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:all .3s;margin-bottom:16px;}
+.regen-btn:hover{border-color:var(--acc);color:var(--acc);background:rgba(52,211,153,0.05);}
+
+/* AI LOADER */
+.ai-load{display:none;align-items:center;gap:16px;background:var(--grn-glow);
+  border:1px solid rgba(16,185,129,0.3);border-radius:16px;padding:20px;margin-bottom:20px;}
+.ai-load.show{display:flex;animation:fadeIn 0.3s;}
+.ai-load-spin{width:24px;height:24px;border:3px solid rgba(16,185,129,0.2);
+  border-top-color:var(--acc);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0;}
+.ai-load-t{font-size:15px;color:var(--acc);font-weight:700;}
+.ai-load-s{font-size:13px;color:var(--txt);margin-top:4px;opacity:0.8;}
 @keyframes spin{to{transform:rotate(360deg);}}
 
-.divider{border:none;border-top:1px solid var(--bord);margin:12px 0;}
-.badge-new{background:rgba(34,197,94,.15);border:1px solid var(--grn-dim);color:var(--acc);font-size:10px;font-weight:600;padding:2px 7px;border-radius:9px;}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+/* AI SETTINGS PAGE */
+.provider-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:16px;
+  padding:20px;margin-bottom:14px;transition:all .3s cubic-bezier(0.4,0,0.2,1);cursor:pointer;}
+.provider-card:hover{background:rgba(255,255,255,0.05);transform:translateY(-2px);}
+.provider-card.selected{border-color:var(--acc);background:var(--grn-glow);box-shadow:0 8px 24px rgba(16,185,129,0.15);}
+.provider-card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.provider-name{font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px;}
+.provider-badge{font-size:11px;padding:4px 10px;border-radius:12px;font-weight:700;letter-spacing:0.5px;}
+.badge-free{background:rgba(16,185,129,0.15);color:var(--acc);border:1px solid rgba(16,185,129,0.3);}
+.badge-paid{background:rgba(239,68,68,0.15);color:var(--red);border:1px solid rgba(239,68,68,0.3);}
+.badge-cheap{background:rgba(245,158,11,0.15);color:#f59e0b;border:1px solid rgba(245,158,11,0.3);}
+.provider-desc{font-size:13px;color:var(--txt2);line-height:1.5;}
+.provider-link{font-size:12px;color:var(--acc);display:inline-flex;align-items:center;gap:6px;margin-top:12px;
+  text-decoration:none;font-weight:600;padding:6px 12px;background:rgba(52,211,153,0.1);border-radius:8px;}
+.provider-link:hover{background:var(--acc);color:#000;}
 
-.key-box{background:rgba(34,197,94,.06);border:1px solid var(--grn-dim);border-radius:12px;padding:13px;margin-bottom:12px;}
-.key-box-title{font-size:12px;font-weight:600;color:var(--acc);display:flex;align-items:center;gap:6px;margin-bottom:8px;}
-.key-row{display:flex;gap:8px;align-items:center;}
-.key-row input{flex:1;margin-bottom:0;font-family:monospace;font-size:12px;background:var(--bg);border:1px solid var(--bord);border-radius:9px;padding:9px 11px;color:var(--txt);outline:none;}
-.key-row input:focus{border-color:var(--grn);}
-.key-save{background:var(--grn);color:#000;border:none;border-radius:9px;padding:9px 14px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;flex-shrink:0;}
-.key-status{font-size:11px;margin-top:7px;display:none;align-items:center;gap:5px;}
-.key-status.ok{color:var(--acc);}
-.key-status.err{color:#f87171;}
-.key-toggle{background:none;border:none;color:var(--txt2);cursor:pointer;padding:0 4px;font-size:13px;flex-shrink:0;}
-.provider-sel{width:100%;background:var(--bg);border:1px solid var(--bord);border-radius:9px;padding:9px 11px;color:var(--txt);font-family:inherit;font-size:13px;outline:none;margin-bottom:9px;cursor:pointer;}
-.provider-sel:focus{border-color:var(--grn);}
-.key-link{font-size:11px;color:var(--acc);text-decoration:none;display:inline-flex;align-items:center;gap:4px;margin-bottom:8px;}
+.key-input-wrap{display:flex;gap:10px;align-items:center;margin-bottom:10px;}
+.key-input{flex:1;margin-bottom:0 !important;font-family:monospace !important;font-size:15px !important;letter-spacing:1px;}
+.key-eye{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:var(--txt);
+  cursor:pointer;width:48px;height:48px;border-radius:12px;font-size:18px;flex-shrink:0;transition:all 0.3s;}
+.key-eye:hover{background:rgba(255,255,255,0.1);}
+
+.key-status{font-size:13px;font-weight:600;margin-top:10px;display:none;align-items:center;gap:8px;padding:12px 16px;border-radius:12px;animation:fadeIn 0.3s;}
+.key-status.ok{display:flex;background:rgba(16,185,129,0.15);color:var(--acc);border:1px solid rgba(16,185,129,0.3);}
+.key-status.err{display:flex;background:rgba(239,68,68,0.15);color:var(--red);border:1px solid rgba(239,68,68,0.3);}
+
+/* DIVIDER */
+.divider{border:none;border-top:1px dashed rgba(255,255,255,0.1);margin:24px 0;}
+
+/* TWO COL */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+
+/* MISC */
+.badge-new{background:var(--grn);color:#000;font-size:10px;font-weight:800;padding:3px 8px;border-radius:10px;letter-spacing:0.5px;}
+.section-title{font-size:20px;font-weight:800;margin-bottom:6px;letter-spacing:0.5px;}
+.section-sub{font-size:14px;color:var(--txt2);margin-bottom:24px;line-height:1.6;}
 </style>
 </head>
 <body>
 
+<!-- HEADER -->
 <header class="hdr">
-  <div class="hdr-logo">
-    <img src="logo.png" onerror="this.style.display='none'" alt="Urban Leaf">
-    <div><div class="hdr-t">Urban Leaf</div><div class="hdr-s">Studio Pro</div></div>
+  <div class="hdr-left">
+    <img src="logo.png" class="hdr-logo" onerror="this.style.display='none'" alt="UL">
+    <div>
+      <div class="hdr-t">Urban Leaf</div>
+      <div class="hdr-s">Studio Pro</div>
+    </div>
   </div>
-  <label for="baseImgInput" class="cam-btn"><i class="fa-solid fa-camera"></i></label>
+  <div class="hdr-right">
+    <label for="baseImgInput" class="hdr-btn" title="Upload photo"><i class="fa-solid fa-camera"></i></label>
+  </div>
 </header>
 
 <input type="file" id="baseImgInput" accept="image/*" style="display:none">
 <input type="file" id="logoInput" accept="image/png" style="display:none">
 
+<!-- IMAGE PANEL -->
 <div id="imgPanel">
   <label id="upLabel" for="baseImgInput">
-    <i class="fa-regular fa-image"></i>
-    <p>Tap to upload your plant photo</p>
-    <small>JPG, PNG supported</small>
+    <div class="up-icon"><i class="fa-regular fa-image"></i></div>
+    <p>Tap to upload plant photo</p>
+    <small>JPG &nbsp;&#183;&nbsp; PNG &nbsp;&#183;&nbsp; WEBP</small>
   </label>
   <canvas id="mainCanvas"></canvas>
-  <div id="zoomHint">Pinch to zoom</div>
-  <button id="zoomReset" onclick="resetZoom()">Reset zoom</button>
+  <div class="zoom-pill" id="zoomPill">
+    <span id="zoomLevel">1.0x</span>
+    <span id="zoomResetBtn" onclick="resetZoom()"><i class="fa-solid fa-rotate-left"></i></span>
+  </div>
 </div>
 
-<div id="ctrlPanel"><div class="cards">
+<!-- SCROLL PANEL -->
+<div id="ctrlPanel">
 
-  <!-- PRESETS -->
-  <div class="card">
-    <div class="card-hdr" onclick="toggleCard('presets')">
-      <div class="card-hdr-l"><div class="card-ico"><i class="fa-solid fa-wand-magic-sparkles"></i></div><div class="card-ttl">Plant Presets</div></div>
-      <i id="presetsArr" class="fa-solid fa-chevron-down" style="color:var(--txt2)"></i>
-    </div>
-    <div id="presetsBody" class="card-body">
-      <div class="preset-grid">
-        <div class="preset-btn" onclick="applyPreset(this,'natural')"><i class="fa-solid fa-leaf" style="color:#22c55e"></i><span>Natural Boost</span></div>
-        <div class="preset-btn" onclick="applyPreset(this,'greens')"><i class="fa-solid fa-tree" style="color:#16a34a"></i><span>Lush Greens</span></div>
-        <div class="preset-btn" onclick="applyPreset(this,'blooms')"><i class="fa-solid fa-spa" style="color:#f472b6"></i><span>Vibrant Blooms</span></div>
-        <div class="preset-btn" onclick="applyPreset(this,'rustic')"><i class="fa-solid fa-mountain-sun" style="color:#a78bfa"></i><span>Rustic Clean</span></div>
-        <div class="preset-btn" onclick="applyPreset(this,'golden')"><i class="fa-solid fa-sun" style="color:#facc15"></i><span>Golden Hour</span></div>
-        <div class="preset-btn" onclick="applyPreset(this,'moody')"><i class="fa-solid fa-moon" style="color:#818cf8"></i><span>Moody Dark</span></div>
-      </div>
-      <hr class="divider">
-      <details>
-        <summary style="font-size:12px;color:var(--txt2);cursor:pointer;padding:4px 0 10px">Fine-tune Manually &#9660;</summary>
-        <div class="sl-row"><div class="sl-lbl">Brightness <span id="bVal">100%</span></div><input type="range" id="bright" min="50" max="160" value="100"></div>
-        <div class="sl-row"><div class="sl-lbl">Contrast <span id="cVal">100%</span></div><input type="range" id="contrast" min="50" max="160" value="100"></div>
-        <div class="sl-row"><div class="sl-lbl">Saturation <span id="sVal">100%</span></div><input type="range" id="sat" min="0" max="220" value="100"></div>
-        <div class="sl-row"><div class="sl-lbl">Warmth <span id="wVal">0</span></div><input type="range" id="warmth" min="-50" max="50" value="0"></div>
-      </details>
-    </div>
-  </div>
+  <!-- PAGE: EDIT -->
+  <div class="page active" id="page-edit">
 
-  <!-- WATERMARK -->
-  <div class="card">
-    <div class="card-hdr" onclick="toggleCard('wm')">
-      <div class="card-hdr-l"><div class="card-ico"><i class="fa-solid fa-stamp"></i></div><div class="card-ttl">Watermark &amp; Logo</div></div>
-      <i id="wmArr" class="fa-solid fa-chevron-down" style="color:var(--txt2)"></i>
-    </div>
-    <div id="wmBody" class="card-body">
-      <div class="tabs">
-        <button class="tab active" id="tabLogo" onclick="switchTab('logo')">Logo</button>
-        <button class="tab" id="tabText" onclick="switchTab('text')">Text Watermark</button>
+    <!-- Presets Card -->
+    <div class="card">
+      <div class="card-hdr" onclick="toggleCard('presets')">
+        <div class="card-hdr-l">
+          <div class="card-ico"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+          <div><div class="card-ttl">Plant Presets</div><div class="card-sub">Color grading &amp; tone</div></div>
+        </div>
+        <i class="fa-solid fa-chevron-down card-arr" id="presetsArr"></i>
       </div>
-      <div id="panelLogo">
-        <label class="logo-btn" for="logoInput"><i class="fa-solid fa-upload"></i> Upload Custom Logo (PNG)</label>
-        <div id="logoBadge" class="logo-ok"><i class="fa-solid fa-circle-check"></i><span id="logoMsg">Logo loaded</span></div>
-        <div class="sl-row"><div class="sl-lbl">Size <span id="wmSzV">30%</span></div><input type="range" id="wmSz" min="5" max="90" value="30"></div>
-        <div class="sl-row"><div class="sl-lbl">Opacity <span id="wmOpV">80%</span></div><input type="range" id="wmOp" min="10" max="100" value="80"></div>
-        <div class="two-col">
-          <div class="sl-row"><div class="sl-lbl">X <span id="wmXV">10%</span></div><input type="range" id="wmX" min="0" max="100" value="10"></div>
-          <div class="sl-row"><div class="sl-lbl">Y <span id="wmYV">10%</span></div><input type="range" id="wmY" min="0" max="100" value="10"></div>
+      <div id="presetsBody" class="card-body">
+        <div class="preset-grid">
+          <div class="preset-btn" onclick="applyPreset(this,'natural')"><i class="fa-solid fa-leaf" style="color:#22c55e"></i><span>Natural</span></div>
+          <div class="preset-btn" onclick="applyPreset(this,'greens')"><i class="fa-solid fa-tree" style="color:#16a34a"></i><span>Greens</span></div>
+          <div class="preset-btn" onclick="applyPreset(this,'blooms')"><i class="fa-solid fa-spa" style="color:#f472b6"></i><span>Blooms</span></div>
+          <div class="preset-btn" onclick="applyPreset(this,'rustic')"><i class="fa-solid fa-mountain-sun" style="color:#a78bfa"></i><span>Rustic</span></div>
+          <div class="preset-btn" onclick="applyPreset(this,'golden')"><i class="fa-solid fa-sun" style="color:#facc15"></i><span>Golden</span></div>
+          <div class="preset-btn" onclick="applyPreset(this,'moody')"><i class="fa-solid fa-moon" style="color:#818cf8"></i><span>Moody</span></div>
         </div>
-      </div>
-      <div id="panelText" style="display:none">
-        <div class="fl">Watermark Text</div>
-        <input type="text" id="wmTxt" value="Urban Leaf Sri Lanka" placeholder="Your brand name...">
-        <div class="fl">Font Style</div>
-        <div class="font-grid">
-          <div class="font-btn active" onclick="pickFont(this,'Georgia,serif')"><div class="fp" style="font-family:Georgia,serif">Abc</div><div class="fn">Classic Serif</div></div>
-          <div class="font-btn" onclick="pickFont(this,'Courier New,monospace')"><div class="fp" style="font-family:Courier New,monospace">Abc</div><div class="fn">Mono</div></div>
-          <div class="font-btn" onclick="pickFont(this,'cursive')"><div class="fp" style="font-family:cursive">Abc</div><div class="fn">Script</div></div>
-          <div class="font-btn" onclick="pickFont(this,'fantasy')"><div class="fp" style="font-family:fantasy">Abc</div><div class="fn">Display</div></div>
-          <div class="font-btn" onclick="pickFont(this,'Arial,sans-serif')"><div class="fp" style="font-family:Arial,sans-serif">Abc</div><div class="fn">Clean Sans</div></div>
-        </div>
-        <div class="fl">Text Color</div>
-        <div class="clr-row">
-          <div class="swatch active" style="background:#fff" onclick="pickClr(this,'#fff')"></div>
-          <div class="swatch" style="background:#22c55e" onclick="pickClr(this,'#22c55e')"></div>
-          <div class="swatch" style="background:#facc15" onclick="pickClr(this,'#facc15')"></div>
-          <div class="swatch" style="background:#f472b6" onclick="pickClr(this,'#f472b6')"></div>
-          <div class="swatch" style="background:#60a5fa" onclick="pickClr(this,'#60a5fa')"></div>
-          <div class="swatch" style="background:#f97316" onclick="pickClr(this,'#f97316')"></div>
-          <div class="swatch" style="background:#000;border:1px solid #444" onclick="pickClr(this,'#000')"></div>
-          <input type="color" id="customClr" value="#ffffff" title="Custom" style="width:28px;height:28px;border:none;background:none;cursor:pointer;border-radius:50%;padding:0" oninput="pickCustomClr(this.value)">
-        </div>
-        <div class="sl-row"><div class="sl-lbl">Font Size <span id="tSzV">40px</span></div><input type="range" id="tSz" min="16" max="120" value="40"></div>
-        <div class="sl-row"><div class="sl-lbl">Opacity <span id="tOpV">70%</span></div><input type="range" id="tOp" min="10" max="100" value="70"></div>
-        <div class="two-col">
-          <div class="sl-row"><div class="sl-lbl">X <span id="tXV">50%</span></div><input type="range" id="tX" min="0" max="100" value="50"></div>
-          <div class="sl-row"><div class="sl-lbl">Y <span id="tYV">90%</span></div><input type="range" id="tY" min="0" max="100" value="90"></div>
-        </div>
-        <div class="sl-row"><div class="sl-lbl">Rotation <span id="tRotV">0</span></div><input type="range" id="tRot" min="-45" max="45" value="0"></div>
+        <details>
+          <summary style="font-size:12px;color:var(--txt2);cursor:pointer;padding:4px 0 12px;user-select:none;">Manual Adjustments &#9660;</summary>
+          <div class="sl-row"><div class="sl-lbl">Brightness<span class="val" id="bVal">100%</span></div><input type="range" id="bright" min="50" max="160" value="100"></div>
+          <div class="sl-row"><div class="sl-lbl">Contrast<span class="val" id="cVal">100%</span></div><input type="range" id="contrast" min="50" max="160" value="100"></div>
+          <div class="sl-row"><div class="sl-lbl">Saturation<span class="val" id="sVal">100%</span></div><input type="range" id="sat" min="0" max="220" value="100"></div>
+          <div class="sl-row"><div class="sl-lbl">Warmth<span class="val" id="wVal">0</span></div><input type="range" id="warmth" min="-50" max="50" value="0"></div>
+        </details>
       </div>
     </div>
-  </div>
 
-  <!-- AI POST GENERATOR -->
-  <div class="card">
-    <div class="card-hdr" onclick="toggleCard('post')">
-      <div class="card-hdr-l">
-        <div class="card-ico"><i class="fa-solid fa-robot"></i></div>
-        <div style="display:flex;align-items:center;gap:8px"><div class="card-ttl">AI Post Generator</div><span class="badge-new">FREE AI</span></div>
-      </div>
-      <i id="postArr" class="fa-solid fa-chevron-down" style="color:var(--txt2)"></i>
-    </div>
-    <div id="postBody" class="card-body">
-      <div class="key-box">
-        <div class="key-box-title"><i class="fa-solid fa-robot"></i> AI Provider &amp; Key</div>
-        <div class="fl">Provider</div>
-        <select class="provider-sel" id="aiProvider" onchange="onProviderChange()">
-          <option value="groq">Groq &#10003; Best Free — Sri Lanka OK</option>
-          <option value="deepseek">DeepSeek (deepseek-chat)</option>
-          <option value="openrouter">OpenRouter (Free models)</option>
-          <option value="anthropic">Anthropic Claude ($5 free)</option>
-          <option value="openai">OpenAI ChatGPT (Paid)</option>
-          <option value="gemini">Google Gemini 2.5 Flash (Free)</option>
-        </select>
-        <a class="key-link" id="keyLink" href="https://console.groq.com/keys" target="_blank">
-          <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:10px"></i>
-          <span id="keyLinkTxt">Free key: console.groq.com/keys</span>
-        </a>
-        <div class="fl">API Key</div>
-        <div class="key-row">
-          <input type="password" id="aiKey" placeholder="gsk_..." autocomplete="off">
-          <button class="key-toggle" onclick="toggleKeyVis()"><i class="fa-solid fa-eye" id="eyeIcon"></i></button>
-          <button class="key-save" onclick="saveKey()">Save</button>
+    <!-- Watermark Card -->
+    <div class="card">
+      <div class="card-hdr" onclick="toggleCard('wm')">
+        <div class="card-hdr-l">
+          <div class="card-ico"><i class="fa-solid fa-stamp"></i></div>
+          <div><div class="card-ttl">Watermark &amp; Logo</div><div class="card-sub">Logo or text overlay</div></div>
         </div>
-        <div class="key-status ok" id="keyOk"><i class="fa-solid fa-circle-check"></i> Key saved!</div>
-        <div class="key-status err" id="keyErr"><i class="fa-solid fa-circle-xmark"></i> <span id="keyErrMsg">Error</span></div>
+        <i class="fa-solid fa-chevron-down card-arr" id="wmArr"></i>
       </div>
-
-      <div class="fl">Plant Name</div>
-      <input type="text" id="plantName" placeholder="e.g. Sakunthala Flash">
-      <div class="fl">Details / Condition</div>
-      <input type="text" id="plantCond" value="මෙම කඳ පැලය විකිණීමට ඇත">
-
-      <div class="fl">Platform</div>
-      <div class="chip-row">
-        <div class="chip active" onclick="pickChip(this,'platform','facebook')">Facebook</div>
-        <div class="chip" onclick="pickChip(this,'platform','instagram')">Instagram</div>
-        <div class="chip" onclick="pickChip(this,'platform','whatsapp')">WhatsApp</div>
-      </div>
-      <div class="fl">Caption Tone</div>
-      <div class="chip-row">
-        <div class="chip active" onclick="pickChip(this,'tone','viral')">Viral</div>
-        <div class="chip" onclick="pickChip(this,'tone','professional')">Professional</div>
-        <div class="chip" onclick="pickChip(this,'tone','sinhala')">Sinhala Mix</div>
-        <div class="chip" onclick="pickChip(this,'tone','short')">Short</div>
-      </div>
-      <div class="fl">Hashtag Style</div>
-      <div class="chip-row">
-        <div class="chip active" onclick="pickChip(this,'hashtag','english')">English</div>
-        <div class="chip" onclick="pickChip(this,'hashtag','mixed')">English + Sinhala</div>
-        <div class="chip" onclick="pickChip(this,'hashtag','niche')">Niche Only</div>
-      </div>
-
-      <button class="ai-btn" id="aiBtn" onclick="runAI()"><i class="fa-solid fa-robot"></i> Generate with AI</button>
-      <button class="q-btn" onclick="quickCaption()"><i class="fa-solid fa-wand-magic-sparkles"></i> Quick Caption (No AI)</button>
-
-      <div class="ai-load" id="aiLoader">
-        <i class="fa-solid fa-spinner"></i>
-        <div><div class="ai-load-t">AI is writing your caption...</div><div class="ai-load-s" id="aiTip">Analyzing plant details...</div></div>
-      </div>
-
-      <div class="fl">Caption</div>
-      <div class="out-wrap">
-        <textarea class="out-area" id="captionOut" rows="7" placeholder="Caption will appear here..."></textarea>
-        <button class="cp-btn" onclick="copyText('captionOut',this)">Copy</button>
-      </div>
-      <div id="htSection" style="display:none">
-        <div class="fl" style="color:var(--acc)">Hashtags</div>
-        <div class="out-wrap">
-          <textarea class="out-area ht-area" id="htOut" rows="4" placeholder="Hashtags..."></textarea>
-          <button class="cp-btn" onclick="copyText('htOut',this)">Copy</button>
+      <div id="wmBody" class="card-body">
+        <div class="wm-tabs">
+          <button class="wm-tab active" id="tabLogo" onclick="switchWmTab('logo')">Logo Image</button>
+          <button class="wm-tab" id="tabText" onclick="switchWmTab('text')">Text</button>
         </div>
-        <button class="regen-btn" onclick="regenHt()"><i class="fa-solid fa-rotate"></i> Regenerate Hashtags</button>
+        <!-- LOGO PANEL -->
+        <div id="panelLogo">
+          <label class="upload-zone" for="logoInput"><i class="fa-solid fa-upload"></i> Upload PNG Logo</label>
+          <div class="logo-badge" id="logoBadge"><i class="fa-solid fa-circle-check"></i><span id="logoMsg">Logo loaded</span></div>
+          <div class="sl-row"><div class="sl-lbl">Size<span class="val" id="wmSzV">30%</span></div><input type="range" id="wmSz" min="5" max="90" value="30"></div>
+          <div class="sl-row"><div class="sl-lbl">Opacity<span class="val" id="wmOpV">80%</span></div><input type="range" id="wmOp" min="10" max="100" value="80"></div>
+          <div class="two-col">
+            <div class="sl-row"><div class="sl-lbl">X<span class="val" id="wmXV">10%</span></div><input type="range" id="wmX" min="0" max="100" value="10"></div>
+            <div class="sl-row"><div class="sl-lbl">Y<span class="val" id="wmYV">10%</span></div><input type="range" id="wmY" min="0" max="100" value="10"></div>
+          </div>
+        </div>
+        <!-- TEXT PANEL -->
+        <div id="panelText" style="display:none">
+          <div class="field-lbl">Watermark Text</div>
+          <input type="text" id="wmTxt" value="Urban Leaf Sri Lanka" placeholder="Your brand...">
+          <div class="field-lbl">Font Style</div>
+          <div class="font-grid">
+            <div class="font-btn active" onclick="pickFont(this,'Georgia,serif')"><div class="fp" style="font-family:Georgia,serif">Abc</div><div class="fn">Serif</div></div>
+            <div class="font-btn" onclick="pickFont(this,'Courier New,monospace')"><div class="fp" style="font-family:Courier New,monospace">Abc</div><div class="fn">Mono</div></div>
+            <div class="font-btn" onclick="pickFont(this,'cursive')"><div class="fp" style="font-family:cursive">Abc</div><div class="fn">Script</div></div>
+            <div class="font-btn" onclick="pickFont(this,'fantasy')"><div class="fp" style="font-family:fantasy">Abc</div><div class="fn">Display</div></div>
+            <div class="font-btn" onclick="pickFont(this,'Arial,sans-serif')"><div class="fp" style="font-family:Arial,sans-serif">Abc</div><div class="fn">Sans</div></div>
+          </div>
+          <div class="field-lbl">Color</div>
+          <div class="clr-row">
+            <div class="swatch active" style="background:#fff" onclick="pickClr(this,'#fff')"></div>
+            <div class="swatch" style="background:#22c55e" onclick="pickClr(this,'#22c55e')"></div>
+            <div class="swatch" style="background:#facc15" onclick="pickClr(this,'#facc15')"></div>
+            <div class="swatch" style="background:#f472b6" onclick="pickClr(this,'#f472b6')"></div>
+            <div class="swatch" style="background:#60a5fa" onclick="pickClr(this,'#60a5fa')"></div>
+            <div class="swatch" style="background:#f97316" onclick="pickClr(this,'#f97316')"></div>
+            <div class="swatch" style="background:#000;border:1px solid #333" onclick="pickClr(this,'#000')"></div>
+            <input type="color" id="customClr" value="#ffffff" style="width:30px;height:30px;border:none;background:none;cursor:pointer;border-radius:50%;padding:0" oninput="pickCustomClr(this.value)">
+          </div>
+          <div class="sl-row"><div class="sl-lbl">Size<span class="val" id="tSzV">40px</span></div><input type="range" id="tSz" min="16" max="120" value="40"></div>
+          <div class="sl-row"><div class="sl-lbl">Opacity<span class="val" id="tOpV">70%</span></div><input type="range" id="tOp" min="10" max="100" value="70"></div>
+          <div class="two-col">
+            <div class="sl-row"><div class="sl-lbl">X<span class="val" id="tXV">50%</span></div><input type="range" id="tX" min="0" max="100" value="50"></div>
+            <div class="sl-row"><div class="sl-lbl">Y<span class="val" id="tYV">90%</span></div><input type="range" id="tY" min="0" max="100" value="90"></div>
+          </div>
+          <div class="sl-row"><div class="sl-lbl">Rotation<span class="val" id="tRotV">0°</span></div><input type="range" id="tRot" min="-45" max="45" value="0"></div>
+        </div>
       </div>
-      <hr class="divider">
-      <div class="fl">Image Metadata (Hidden Author Tag)</div>
-      <input type="text" id="metaAuthor" value="Urban Leaf Sri Lanka">
     </div>
-  </div>
 
-</div></div>
+    <!-- Metadata Card -->
+    <div class="card">
+      <div class="card-hdr" onclick="toggleCard('meta')">
+        <div class="card-hdr-l">
+          <div class="card-ico"><i class="fa-solid fa-tag"></i></div>
+          <div><div class="card-ttl">Image Metadata</div><div class="card-sub">Hidden copyright tag</div></div>
+        </div>
+        <i class="fa-solid fa-chevron-down card-arr" id="metaArr"></i>
+      </div>
+      <div id="metaBody" class="card-body">
+        <div class="field-lbl">Author / Brand Name</div>
+        <input type="text" id="metaAuthor" value="Urban Leaf Sri Lanka">
+      </div>
+    </div>
 
-<div class="save-bar">
-  <label class="upload-btn-bar" for="baseImgInput"><i class="fa-solid fa-camera"></i></label>
-  <button class="save-btn" onclick="saveImg()"><i class="fa-solid fa-download"></i> Save HD Photo</button>
-</div>
+  </div><!-- /page-edit -->
+
+  <!-- PAGE: AI CAPTION -->
+  <div class="page" id="page-ai">
+
+    <div class="card">
+      <div class="card-hdr" onclick="toggleCard('aicap')">
+        <div class="card-hdr-l">
+          <div class="card-ico"><i class="fa-solid fa-robot"></i></div>
+          <div>
+            <div style="display:flex;align-items:center;gap:7px">
+              <div class="card-ttl">AI Caption Generator</div>
+              <span class="badge-new">AI</span>
+            </div>
+            <div class="card-sub">Auto-generate viral captions</div>
+          </div>
+        </div>
+        <i class="fa-solid fa-chevron-down card-arr" id="aicapArr"></i>
+      </div>
+      <div id="aicapBody" class="card-body open">
+
+        <div class="field-lbl">Plant Name</div>
+        <input type="text" id="plantName" placeholder="e.g. Sakunthala Flash, Red Anthurium">
+
+        <div class="field-lbl">Condition / Details</div>
+        <input type="text" id="plantCond" value="මෙම කඳ පැලය විකිණීමට ඇත">
+
+        <div class="field-lbl">Platform</div>
+        <div class="chip-row">
+          <div class="chip active" onclick="pickChip(this,'platform','facebook')">Facebook</div>
+          <div class="chip" onclick="pickChip(this,'platform','instagram')">Instagram</div>
+          <div class="chip" onclick="pickChip(this,'platform','whatsapp')">WhatsApp</div>
+        </div>
+
+        <div class="field-lbl">Caption Tone</div>
+        <div class="chip-row">
+          <div class="chip active" onclick="pickChip(this,'tone','viral')">&#128293; Viral</div>
+          <div class="chip" onclick="pickChip(this,'tone','professional')">&#128188; Pro</div>
+          <div class="chip" onclick="pickChip(this,'tone','sinhala')">&#127473;&#127472; Sinhala Mix</div>
+          <div class="chip" onclick="pickChip(this,'tone','short')">&#9986; Short</div>
+        </div>
+
+        <div class="field-lbl">Hashtag Style</div>
+        <div class="chip-row">
+          <div class="chip active" onclick="pickChip(this,'hashtag','english')">English</div>
+          <div class="chip" onclick="pickChip(this,'hashtag','mixed')">EN + Sinhala</div>
+          <div class="chip" onclick="pickChip(this,'hashtag','niche')">Niche Only</div>
+        </div>
+
+        <button class="btn-primary" id="aiBtn" onclick="runAI()">
+          <i class="fa-solid fa-robot"></i> Generate with AI
+        </button>
+        <button class="btn-secondary" onclick="quickCaption()">
+          <i class="fa-solid fa-bolt"></i> Quick Caption (No AI)
+        </button>
+
+        <div class="ai-load" id="aiLoader">
+          <div class="ai-load-spin"></div>
+          <div><div class="ai-load-t">Writing your caption...</div><div class="ai-load-s" id="aiTip">Analyzing plant details...</div></div>
+        </div>
+
+        <div id="captionResult" style="display:none">
+          <div class="field-lbl">Caption</div>
+          <div class="out-wrap">
+            <textarea class="out-area" id="captionOut" rows="8" placeholder="Caption appears here..."></textarea>
+            <button class="cp-btn" onclick="copyText('captionOut',this)">Copy</button>
+          </div>
+          <div id="htSection" style="display:none">
+            <div class="field-lbl" style="color:var(--acc)">Hashtags</div>
+            <div class="out-wrap">
+              <textarea class="out-area ht-area" id="htOut" rows="4" placeholder="Hashtags..."></textarea>
+              <button class="cp-btn" onclick="copyText('htOut',this)">Copy</button>
+            </div>
+            <button class="regen-btn" onclick="regenHt()"><i class="fa-solid fa-rotate"></i> Regenerate Hashtags</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /page-ai -->
+
+  <!-- PAGE: AI SETTINGS -->
+  <div class="page" id="page-settings">
+
+    <div class="section-title">AI Provider</div>
+    <div class="section-sub">Select provider &amp; paste your API key. Key is saved in your browser.</div>
+
+    <!-- GROQ -->
+    <div class="provider-card selected" id="pcard-groq" onclick="selectProvider('groq')">
+      <div class="provider-card-top">
+        <span class="provider-name"><i class="fa-solid fa-bolt" style="color:#facc15;font-size:12px"></i> Groq</span>
+        <span class="provider-badge badge-free">FREE</span>
+      </div>
+      <div class="provider-desc">llama-3.3-70b &nbsp;&#183;&nbsp; Super fast &nbsp;&#183;&nbsp; Sri Lanka OK</div>
+      <a class="provider-link" href="https://console.groq.com/keys" target="_blank" onclick="event.stopPropagation()">
+        <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:9px"></i> console.groq.com/keys
+      </a>
+    </div>
+
+    <!-- DEEPSEEK -->
+    <div class="provider-card" id="pcard-deepseek" onclick="selectProvider('deepseek')">
+      <div class="provider-card-top">
+        <span class="provider-name"><i class="fa-solid fa-brain" style="color:#818cf8;font-size:12px"></i> DeepSeek</span>
+        <span class="provider-badge badge-cheap">$2 FREE</span>
+      </div>
+      <div class="provider-desc">deepseek-chat &nbsp;&#183;&nbsp; Great quality &nbsp;&#183;&nbsp; Good Sinhala</div>
+      <a class="provider-link" href="https://platform.deepseek.com/api_keys" target="_blank" onclick="event.stopPropagation()">
+        <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:9px"></i> platform.deepseek.com
+      </a>
+    </div>
+
+    <!-- OPENROUTER -->
+    <div class="provider-card" id="pcard-openrouter" onclick="selectProvider('openrouter')">
+      <div class="provider-card-top">
+        <span class="provider-name"><i class="fa-solid fa-network-wired" style="color:#60a5fa;font-size:12px"></i> OpenRouter</span>
+        <span class="provider-badge badge-free">FREE</span>
+      </div>
+      <div class="provider-desc">Free Llama models &nbsp;&#183;&nbsp; Multiple options</div>
+      <a class="provider-link" href="https://openrouter.ai/keys" target="_blank" onclick="event.stopPropagation()">
+        <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:9px"></i> openrouter.ai/keys
+      </a>
+    </div>
+
+    <!-- GEMINI -->
+    <div class="provider-card" id="pcard-gemini" onclick="selectProvider('gemini')">
+      <div class="provider-card-top">
+        <span class="provider-name"><i class="fa-brands fa-google" style="color:#4ade80;font-size:12px"></i> Google Gemini</span>
+        <span class="provider-badge badge-free">FREE</span>
+      </div>
+      <div class="provider-desc">Gemini 2.5 Flash &nbsp;&#183;&nbsp; 1500 req/day</div>
+      <a class="provider-link" href="https://aistudio.google.com/app/apikey" target="_blank" onclick="event.stopPropagation()">
+        <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:9px"></i> aistudio.google.com
+      </a>
+    </div>
+
+    <!-- ANTHROPIC -->
+    <div class="provider-card" id="pcard-anthropic" onclick="selectProvider('anthropic')">
+      <div class="provider-card-top">
+        <span class="provider-name"><i class="fa-solid fa-a" style="color:#f97316;font-size:12px"></i> Anthropic Claude</span>
+        <span class="provider-badge badge-cheap">$5 FREE</span>
+      </div>
+      <div class="provider-desc">Claude Haiku &nbsp;&#183;&nbsp; High quality</div>
+      <a class="provider-link" href="https://console.anthropic.com" target="_blank" onclick="event.stopPropagation()">
+        <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:9px"></i> console.anthropic.com
+      </a>
+    </div>
+
+    <!-- OPENAI -->
+    <div class="provider-card" id="pcard-openai" onclick="selectProvider('openai')">
+      <div class="provider-card-top">
+        <span class="provider-name"><i class="fa-brands fa-openai" style="color:var(--txt2);font-size:12px"></i> OpenAI</span>
+        <span class="provider-badge badge-paid">PAID</span>
+      </div>
+      <div class="provider-desc">GPT-4o-mini &nbsp;&#183;&nbsp; Reliable</div>
+      <a class="provider-link" href="https://platform.openai.com/api-keys" target="_blank" onclick="event.stopPropagation()">
+        <i class="fa-solid fa-arrow-up-right-from-square" style="font-size:9px"></i> platform.openai.com
+      </a>
+    </div>
+
+    <hr class="divider">
+
+    <div class="field-lbl">API Key</div>
+    <div class="key-input-wrap">
+      <input type="password" id="aiKey" class="key-input" placeholder="Paste your API key here..." autocomplete="off">
+      <button class="key-eye" onclick="toggleKeyVis()"><i class="fa-solid fa-eye" id="eyeIcon"></i></button>
+    </div>
+    <button class="btn-primary" onclick="saveKey()" style="margin-top:4px">
+      <i class="fa-solid fa-floppy-disk"></i> Save Key
+    </button>
+    <div class="key-status ok" id="keyOk"><i class="fa-solid fa-circle-check"></i>&nbsp; Key saved successfully!</div>
+    <div class="key-status err" id="keyErr"><i class="fa-solid fa-circle-xmark"></i>&nbsp; <span id="keyErrMsg">Error</span></div>
+
+    <div style="margin-top:6px;padding:10px 12px;background:var(--surf2);border-radius:10px;font-size:11px;color:var(--txt2);line-height:1.6;">
+      &#128274; Key is stored only in your browser (localStorage). Never shared anywhere.
+    </div>
+
+  </div><!-- /page-settings -->
+
+</div><!-- /ctrlPanel -->
+
+<!-- BOTTOM TAB NAV -->
+<nav class="tab-nav">
+  <button class="tab-nav-btn active" id="nav-edit" onclick="showPage('edit')">
+    <i class="fa-solid fa-wand-magic-sparkles"></i>Edit
+  </button>
+  <button class="tab-nav-btn" id="nav-ai" onclick="showPage('ai')">
+    <i class="fa-solid fa-robot"></i>Caption
+  </button>
+  <button class="save-tab-btn" onclick="saveImg()">
+    <div class="save-tab-inner">
+      <i class="fa-solid fa-download"></i>
+      <span>Save HD</span>
+    </div>
+  </button>
+  <button class="tab-nav-btn" id="nav-settings" onclick="showPage('settings')">
+    <i class="fa-solid fa-gear"></i>Settings
+  </button>
+</nav>
 
 <script>
-var S={base:null,logo:null,bright:100,contrast:100,sat:100,warmth:0,wmSz:30,wmOp:80,wmX:10,wmY:10,wmTab:'logo',font:'Georgia,serif',color:'#ffffff',tSz:40,tOp:70,tX:50,tY:90,tRot:0,platform:'facebook',tone:'viral',hashtag:'english'};
+/* STATE */
+var S={base:null,logo:null,bright:100,contrast:100,sat:100,warmth:0,
+  wmSz:30,wmOp:80,wmX:10,wmY:10,wmTab:'logo',font:'Georgia,serif',color:'#ffffff',
+  tSz:40,tOp:70,tX:50,tY:90,tRot:0,platform:'facebook',tone:'viral',hashtag:'english'};
+
 var canvas=document.getElementById('mainCanvas');
 var ctx=canvas.getContext('2d');
 
+/* DRAW */
 function draw(){
   if(!S.base)return;
   canvas.width=S.base.naturalWidth; canvas.height=S.base.naturalHeight;
@@ -354,44 +648,51 @@ function draw(){
   if(S.wmTab==='text'){
     var txt=document.getElementById('wmTxt').value||'Urban Leaf';
     var fs=Math.max(16,Math.round(canvas.width*S.tSz/1000));
-    ctx.save();ctx.translate(canvas.width*(S.tX/100),canvas.height*(S.tY/100));ctx.rotate(S.tRot*Math.PI/180);
-    ctx.font='bold '+fs+'px '+S.font;ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.globalAlpha=S.tOp/100;ctx.shadowColor='rgba(0,0,0,0.65)';ctx.shadowBlur=fs*0.3;
+    ctx.save();ctx.translate(canvas.width*(S.tX/100),canvas.height*(S.tY/100));
+    ctx.rotate(S.tRot*Math.PI/180);ctx.font='bold '+fs+'px '+S.font;
+    ctx.textAlign='center';ctx.textBaseline='middle';ctx.globalAlpha=S.tOp/100;
+    ctx.shadowColor='rgba(0,0,0,0.65)';ctx.shadowBlur=fs*0.3;
     ctx.fillStyle=S.color;ctx.fillText(txt,0,0);ctx.restore();
   }
 }
 
 /* ZOOM */
 var Z={scale:1,minScale:1,maxScale:8,startDist:0,startScale:1,tx:0,ty:0,startTx:0,startTy:0,startMidX:0,startMidY:0,pointers:[]};
-function applyTransform(){canvas.style.transform='translate('+Z.tx+'px,'+Z.ty+'px) scale('+Z.scale+')';document.getElementById('zoomReset').classList.toggle('show',Z.scale>1.02);document.getElementById('zoomHint').classList.toggle('show',Z.scale<=1.02&&S.base);}
+function applyTransform(){
+  canvas.style.transform='translate('+Z.tx+'px,'+Z.ty+'px) scale('+Z.scale+')';
+  var pill=document.getElementById('zoomPill');
+  pill.classList.toggle('show',Z.scale>1.02&&S.base);
+  document.getElementById('zoomLevel').textContent=Z.scale.toFixed(1)+'x';
+}
 function resetZoom(){Z.scale=1;Z.tx=0;Z.ty=0;applyTransform();}
 function clampTranslate(){var p=document.getElementById('imgPanel'),pw=p.clientWidth,ph=p.clientHeight,maxTx=Math.max(0,(pw*Z.scale-pw)/2),maxTy=Math.max(0,(ph*Z.scale-ph)/2);Z.tx=Math.max(-maxTx,Math.min(maxTx,Z.tx));Z.ty=Math.max(-maxTy,Math.min(maxTy,Z.ty));}
 function dist(a,b){return Math.sqrt(Math.pow(a.clientX-b.clientX,2)+Math.pow(a.clientY-b.clientY,2));}
-function mid(a,b){return{x:(a.clientX+b.clientX)/2,y:(a.clientY+b.clientY)/2};}
+function midP(a,b){return{x:(a.clientX+b.clientX)/2,y:(a.clientY+b.clientY)/2};}
 var ip=document.getElementById('imgPanel');
-ip.addEventListener('pointerdown',function(e){Z.pointers.push(e);if(Z.pointers.length===2){Z.startDist=dist(Z.pointers[0],Z.pointers[1]);Z.startScale=Z.scale;var m=mid(Z.pointers[0],Z.pointers[1]);Z.startMidX=m.x;Z.startMidY=m.y;Z.startTx=Z.tx;Z.startTy=Z.ty;}else if(Z.pointers.length===1){Z.startTx=Z.tx;Z.startTy=Z.ty;Z.startMidX=e.clientX;Z.startMidY=e.clientY;}},{passive:true});
-ip.addEventListener('pointermove',function(e){for(var i=0;i<Z.pointers.length;i++){if(Z.pointers[i].pointerId===e.pointerId){Z.pointers[i]=e;break;}}if(Z.pointers.length===2){var d=dist(Z.pointers[0],Z.pointers[1]);Z.scale=Math.min(Z.maxScale,Math.max(Z.minScale,Z.startScale*(d/Z.startDist)));var m=mid(Z.pointers[0],Z.pointers[1]);Z.tx=Z.startTx+(m.x-Z.startMidX);Z.ty=Z.startTy+(m.y-Z.startMidY);clampTranslate();applyTransform();}else if(Z.pointers.length===1&&Z.scale>1.05){Z.tx=Z.startTx+(e.clientX-Z.startMidX);Z.ty=Z.startTy+(e.clientY-Z.startMidY);clampTranslate();applyTransform();}},{passive:true});
+ip.addEventListener('pointerdown',function(e){Z.pointers.push(e);if(Z.pointers.length===2){Z.startDist=dist(Z.pointers[0],Z.pointers[1]);Z.startScale=Z.scale;var m=midP(Z.pointers[0],Z.pointers[1]);Z.startMidX=m.x;Z.startMidY=m.y;Z.startTx=Z.tx;Z.startTy=Z.ty;}else if(Z.pointers.length===1){Z.startTx=Z.tx;Z.startTy=Z.ty;Z.startMidX=e.clientX;Z.startMidY=e.clientY;}},{passive:true});
+ip.addEventListener('pointermove',function(e){for(var i=0;i<Z.pointers.length;i++){if(Z.pointers[i].pointerId===e.pointerId){Z.pointers[i]=e;break;}}if(Z.pointers.length===2){var d=dist(Z.pointers[0],Z.pointers[1]);Z.scale=Math.min(Z.maxScale,Math.max(Z.minScale,Z.startScale*(d/Z.startDist)));var m=midP(Z.pointers[0],Z.pointers[1]);Z.tx=Z.startTx+(m.x-Z.startMidX);Z.ty=Z.startTy+(m.y-Z.startMidY);clampTranslate();applyTransform();}else if(Z.pointers.length===1&&Z.scale>1.05){Z.tx=Z.startTx+(e.clientX-Z.startMidX);Z.ty=Z.startTy+(e.clientY-Z.startMidY);clampTranslate();applyTransform();}},{passive:true});
 function rp(e){Z.pointers=Z.pointers.filter(function(p){return p.pointerId!==e.pointerId;});}
 ip.addEventListener('pointerup',rp,{passive:true});ip.addEventListener('pointercancel',rp,{passive:true});
 var lt=0;ip.addEventListener('click',function(){var n=Date.now();if(n-lt<300)resetZoom();lt=n;});
 
 /* INIT */
 window.addEventListener('DOMContentLoaded',function(){
-  var sp=localStorage.getItem('ai_provider'),sk=localStorage.getItem('ai_key');
-  if(sp){document.getElementById('aiProvider').value=sp;onProviderChange();}
-  if(sk){document.getElementById('aiKey').value=sk;document.getElementById('keyOk').style.display='flex';setTimeout(function(){document.getElementById('keyOk').style.display='none';},2000);}
+  var sp=localStorage.getItem('ai_provider')||'groq';
+  var sk=localStorage.getItem('ai_key');
+  selectProvider(sp,true);
+  if(sk){document.getElementById('aiKey').value=sk;}
   var lg=new Image();
   lg.onload=function(){S.logo=lg;document.getElementById('logoBadge').classList.add('show');document.getElementById('logoMsg').textContent='Urban Leaf Logo loaded';};
   lg.src='logo.png';
+  openCard('aicap');
 });
 
 document.getElementById('baseImgInput').addEventListener('change',function(e){
   var f=e.target.files[0];if(!f)return;
   var r=new FileReader();
-  r.onload=function(ev){var img=new Image();img.onload=function(){S.base=img;canvas.style.display='block';document.getElementById('upLabel').style.display='none';resetZoom();var h=document.getElementById('zoomHint');h.classList.add('show');setTimeout(function(){h.classList.remove('show');},2500);draw();openCard('presets');};img.src=ev.target.result;};
+  r.onload=function(ev){var img=new Image();img.onload=function(){S.base=img;canvas.style.display='block';document.getElementById('upLabel').style.display='none';resetZoom();draw();openCard('presets');showPage('edit');};img.src=ev.target.result;};
   r.readAsDataURL(f);e.target.value='';
 });
-
 document.getElementById('logoInput').addEventListener('change',function(e){
   var f=e.target.files[0];if(!f)return;
   var r=new FileReader();
@@ -399,11 +700,28 @@ document.getElementById('logoInput').addEventListener('change',function(e){
   r.readAsDataURL(f);e.target.value='';
 });
 
+/* PAGE NAV */
+function showPage(p){
+  document.querySelectorAll('.page').forEach(function(el){el.classList.remove('active');});
+  document.querySelectorAll('.tab-nav-btn').forEach(function(el){el.classList.remove('active');});
+  document.getElementById('page-'+p).classList.add('active');
+  var nb=document.getElementById('nav-'+p);
+  if(nb)nb.classList.add('active');
+  document.getElementById('ctrlPanel').scrollTop=0;
+}
+
 /* SLIDERS */
-function bindSl(id,vi,key,unit){var el=document.getElementById(id),vl=document.getElementById(vi);el.addEventListener('input',function(){S[key]=+el.value;vl.textContent=el.value+(unit||'');draw();});}
-bindSl('bright','bVal','bright','%');bindSl('contrast','cVal','contrast','%');bindSl('sat','sVal','sat','%');bindSl('warmth','wVal','warmth','');
-bindSl('wmSz','wmSzV','wmSz','%');bindSl('wmOp','wmOpV','wmOp','%');bindSl('wmX','wmXV','wmX','%');bindSl('wmY','wmYV','wmY','%');
-bindSl('tSz','tSzV','tSz','px');bindSl('tOp','tOpV','tOp','%');bindSl('tX','tXV','tX','%');bindSl('tY','tYV','tY','%');bindSl('tRot','tRotV','tRot','');
+function bindSl(id,vi,key,unit){
+  var el=document.getElementById(id),vl=document.getElementById(vi);
+  el.addEventListener('input',function(){S[key]=+el.value;vl.textContent=el.value+(unit||'');draw();});
+}
+bindSl('bright','bVal','bright','%');bindSl('contrast','cVal','contrast','%');
+bindSl('sat','sVal','sat','%');bindSl('warmth','wVal','warmth','');
+bindSl('wmSz','wmSzV','wmSz','%');bindSl('wmOp','wmOpV','wmOp','%');
+bindSl('wmX','wmXV','wmX','%');bindSl('wmY','wmYV','wmY','%');
+bindSl('tSz','tSzV','tSz','px');bindSl('tOp','tOpV','tOp','%');
+bindSl('tX','tXV','tX','%');bindSl('tY','tYV','tY','%');
+bindSl('tRot','tRotV','tRot','°');
 document.getElementById('wmTxt').addEventListener('input',draw);
 
 /* PRESETS */
@@ -412,45 +730,80 @@ function applyPreset(el,type){
   document.querySelectorAll('.preset-btn').forEach(function(b){b.classList.remove('active');});el.classList.add('active');
   var map={natural:[105,110,110,5],greens:[110,120,135,8],blooms:[100,110,155,-5],rustic:[105,125,85,15],golden:[115,105,120,40],moody:[80,130,80,-20]};
   var v=map[type];['bright','contrast','sat','warmth'].forEach(function(k,i){S[k]=v[i];document.getElementById(k).value=v[i];});
-  document.getElementById('bVal').textContent=v[0]+'%';document.getElementById('cVal').textContent=v[1]+'%';document.getElementById('sVal').textContent=v[2]+'%';document.getElementById('wVal').textContent=v[3];draw();
+  document.getElementById('bVal').textContent=v[0]+'%';document.getElementById('cVal').textContent=v[1]+'%';
+  document.getElementById('sVal').textContent=v[2]+'%';document.getElementById('wVal').textContent=v[3];draw();
 }
 
 /* WATERMARK */
-function switchTab(tab){S.wmTab=tab;document.getElementById('tabLogo').classList.toggle('active',tab==='logo');document.getElementById('tabText').classList.toggle('active',tab==='text');document.getElementById('panelLogo').style.display=tab==='logo'?'':'none';document.getElementById('panelText').style.display=tab==='text'?'':'none';draw();}
+function switchWmTab(t){S.wmTab=t;document.getElementById('tabLogo').classList.toggle('active',t==='logo');document.getElementById('tabText').classList.toggle('active',t==='text');document.getElementById('panelLogo').style.display=t==='logo'?'':'none';document.getElementById('panelText').style.display=t==='text'?'':'none';draw();}
 function pickFont(el,f){S.font=f;document.querySelectorAll('.font-btn').forEach(function(b){b.classList.remove('active');});el.classList.add('active');draw();}
 function pickClr(el,c){S.color=c;document.querySelectorAll('.swatch').forEach(function(b){b.classList.remove('active');});el.classList.add('active');draw();}
 function pickCustomClr(v){S.color=v;draw();}
 
 /* CARDS */
-function toggleCard(id){var body=document.getElementById(id+'Body'),arr=document.getElementById(id+'Arr'),open=body.classList.contains('open');document.querySelectorAll('.card-body').forEach(function(b){b.classList.remove('open');});document.querySelectorAll('[id$="Arr"]').forEach(function(a){a.classList.remove('fa-chevron-up');a.classList.add('fa-chevron-down');});if(!open){body.classList.add('open');arr.classList.replace('fa-chevron-down','fa-chevron-up');}}
-function openCard(id){document.querySelectorAll('.card-body').forEach(function(b){b.classList.remove('open');});document.querySelectorAll('[id$="Arr"]').forEach(function(a){a.classList.remove('fa-chevron-up');a.classList.add('fa-chevron-down');});var body=document.getElementById(id+'Body'),arr=document.getElementById(id+'Arr');if(body){body.classList.add('open');arr.classList.replace('fa-chevron-down','fa-chevron-up');}}
+function toggleCard(id){
+  var body=document.getElementById(id+'Body'),arr=document.getElementById(id+'Arr');
+  if(!body)return;
+  var open=body.classList.contains('open');
+  body.classList.toggle('open',!open);
+  if(arr)arr.classList.toggle('open',!open);
+}
+function openCard(id){
+  var body=document.getElementById(id+'Body'),arr=document.getElementById(id+'Arr');
+  if(body){body.classList.add('open');if(arr)arr.classList.add('open');}
+}
+
+/* CHIPS */
 function pickChip(el,g,v){S[g]=v;el.closest('.chip-row').querySelectorAll('.chip').forEach(function(c){c.classList.remove('active');});el.classList.add('active');}
 
 /* PROVIDERS */
 var PROVIDERS={
-  groq:      {url:'https://api.groq.com/openai/v1/chat/completions',model:'llama-3.3-70b-versatile',type:'openai',link:'https://console.groq.com/keys',linkTxt:'Free key: console.groq.com/keys',ph:'gsk_...'},
-  deepseek:  {url:'https://api.deepseek.com/v1/chat/completions',model:'deepseek-chat',type:'openai',link:'https://platform.deepseek.com/api_keys',linkTxt:'$2 free: platform.deepseek.com',ph:'sk-...'},
-  openrouter:{url:'https://openrouter.ai/api/v1/chat/completions',model:'meta-llama/llama-3.1-8b-instruct:free',type:'openai',link:'https://openrouter.ai/keys',linkTxt:'Free key: openrouter.ai/keys',ph:'sk-or-...'},
-  anthropic: {url:'https://api.anthropic.com/v1/messages',model:'claude-haiku-4-5-20251001',type:'anthropic',link:'https://console.anthropic.com',linkTxt:'console.anthropic.com ($5 free)',ph:'sk-ant-...'},
-  openai:    {url:'https://api.openai.com/v1/chat/completions',model:'gpt-4o-mini',type:'openai',link:'https://platform.openai.com/api-keys',linkTxt:'platform.openai.com/api-keys',ph:'sk-...'},
-  gemini:    {url:'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',model:'',type:'gemini',link:'https://aistudio.google.com/app/apikey',linkTxt:'Free key: aistudio.google.com',ph:'AIza...'}
+  groq:      {url:'https://api.groq.com/openai/v1/chat/completions',model:'llama-3.3-70b-versatile',type:'openai',ph:'gsk_...'},
+  deepseek:  {url:'https://api.deepseek.com/v1/chat/completions',model:'deepseek-chat',type:'openai',ph:'sk-...'},
+  openrouter:{url:'https://openrouter.ai/api/v1/chat/completions',model:'meta-llama/llama-3.1-8b-instruct:free',type:'openai',ph:'sk-or-...'},
+  gemini:    {url:'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',model:'',type:'gemini',ph:'AIza...'},
+  anthropic: {url:'https://api.anthropic.com/v1/messages',model:'claude-haiku-4-5-20251001',type:'anthropic',ph:'sk-ant-...'},
+  openai:    {url:'https://api.openai.com/v1/chat/completions',model:'gpt-4o-mini',type:'openai',ph:'sk-...'}
 };
+var currentProvider='groq';
 
-function onProviderChange(){var p=PROVIDERS[document.getElementById('aiProvider').value];document.getElementById('keyLink').href=p.link;document.getElementById('keyLinkTxt').textContent=p.linkTxt;document.getElementById('aiKey').placeholder=p.ph;document.getElementById('keyOk').style.display='none';document.getElementById('keyErr').style.display='none';}
-function saveKey(){var pv=document.getElementById('aiProvider').value,k=document.getElementById('aiKey').value.trim();if(!k){showKeyStatus('err','Key empty!');return;}localStorage.setItem('ai_provider',pv);localStorage.setItem('ai_key',k);showKeyStatus('ok',null);}
+function selectProvider(pv,silent){
+  currentProvider=pv;
+  document.querySelectorAll('.provider-card').forEach(function(c){c.classList.remove('selected');});
+  var pc=document.getElementById('pcard-'+pv);
+  if(pc)pc.classList.add('selected');
+  document.getElementById('aiKey').placeholder=PROVIDERS[pv].ph;
+  if(!silent){
+    document.getElementById('keyOk').className='key-status';
+    document.getElementById('keyErr').className='key-status';
+  }
+}
+
+function saveKey(){
+  var k=document.getElementById('aiKey').value.trim();
+  if(!k){showKeyStatus('err','Key empty!');return;}
+  localStorage.setItem('ai_provider',currentProvider);
+  localStorage.setItem('ai_key',k);
+  showKeyStatus('ok',null);
+}
 function getKey(){return document.getElementById('aiKey').value.trim()||localStorage.getItem('ai_key')||'';}
-function showKeyStatus(t,m){var ok=document.getElementById('keyOk'),err=document.getElementById('keyErr');ok.style.display=t==='ok'?'flex':'none';err.style.display=t==='err'?'flex':'none';if(m)document.getElementById('keyErrMsg').textContent=m;if(t==='ok')setTimeout(function(){ok.style.display='none';},3000);}
+function showKeyStatus(t,m){
+  document.getElementById('keyOk').className='key-status'+(t==='ok'?' ok':'');
+  document.getElementById('keyErr').className='key-status'+(t==='err'?' err':'');
+  if(m)document.getElementById('keyErrMsg').textContent=m;
+  if(t==='ok')setTimeout(function(){document.getElementById('keyOk').className='key-status';},3000);
+}
 function toggleKeyVis(){var i=document.getElementById('aiKey'),ic=document.getElementById('eyeIcon');if(i.type==='password'){i.type='text';ic.className='fa-solid fa-eye-slash';}else{i.type='password';ic.className='fa-solid fa-eye';}}
 
 /* AI */
-var tips=['Analyzing plant details...','Crafting viral hooks...','Selecting best hashtags...','Optimizing for engagement...','Almost done...'];
+var tips=['Analyzing plant details...','Crafting viral hooks...','Selecting hashtags...','Polishing the caption...','Almost done...'];
 var tipIdx=0,tipTimer;
 function startTips(){var el=document.getElementById('aiTip');el.textContent=tips[0];tipIdx=0;tipTimer=setInterval(function(){tipIdx=(tipIdx+1)%tips.length;el.textContent=tips[tipIdx];},1800);}
 function stopTips(){clearInterval(tipTimer);}
 
 async function callAI(prompt){
-  var key=getKey(),pv=document.getElementById('aiProvider').value,cfg=PROVIDERS[pv];
-  if(!key)throw new Error('API key නෑ! Provider select කරලා key paste කරන්න.');
+  var key=getKey(),cfg=PROVIDERS[currentProvider];
+  if(!key)throw new Error('API key නෑ! AI Key tab ෙ key paste කරන්න.');
   var res,data,text;
   if(cfg.type==='gemini'){
     res=await fetch(cfg.url+'?key='+key,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})});
@@ -472,50 +825,47 @@ async function runAI(){
   var plant=document.getElementById('plantName').value.trim()||'Anthurium Plant';
   var cond=document.getElementById('plantCond').value.trim();
   var btn=document.getElementById('aiBtn');
-  btn.disabled=true;btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i> Generating...';
+  btn.disabled=true;btn.innerHTML='<div class="ai-load-spin" style="width:16px;height:16px;border-color:rgba(0,0,0,.3);border-top-color:#000;margin:0"></div> Generating...';
   document.getElementById('aiLoader').classList.add('show');
-  document.getElementById('captionOut').value='';
-  document.getElementById('htSection').style.display='none';
+  document.getElementById('captionResult').style.display='none';
   startTips();
-  var toneInstr={
-    viral:'Write an exciting attention-grabbing caption. Strong hook at the start. Use relevant plant emojis throughout.',
-    professional:'Write a professional trustworthy elegant caption. Clean and sophisticated tone.',
-    sinhala:'Write in natural Sinhala+English mix exactly how Sri Lankan plant sellers write on Facebook. Casual friendly tone. Mix Sinhala words naturally with English. Example: "Rare anthurium pawath nethi! Island-wide deliver. Bank transfer only. Inbox karanna price gaana."',
-    short:'Very short and punchy. Maximum 4 lines. High impact only.'
+  var toneMap={
+    viral:'Exciting attention-grabbing caption. Strong hook. Plant emojis throughout.',
+    professional:'Professional trustworthy elegant tone.',
+    sinhala:'Natural Sinhala+English mix. Casual Facebook style. Like real Sri Lankan sellers write. Example: "Rare anthurium! Island-wide deliver available. Bank transfer only. Inbox karanna."',
+    short:'Very short punchy. Max 4 lines only.'
   };
-  var platInstr={facebook:'Facebook post for Sri Lankan plant selling page.',instagram:'Instagram caption with aesthetic storytelling style.',whatsapp:'Short direct WhatsApp status or group message.'};
-  var htStyles={english:'15-20 relevant English hashtags for maximum reach',mixed:'mix of English and Sinhala transliterated hashtags like #LankaFlora #SriLankaPlants',niche:'10 highly targeted niche plant enthusiast hashtags only'};
+  var platMap={facebook:'Facebook plant shop post.',instagram:'Instagram aesthetic storytelling.',whatsapp:'Short WhatsApp status.'};
+  var htMap={english:'15-20 English hashtags',mixed:'English + Sinhala transliterated hashtags like #LankaFlora',niche:'10 targeted niche plant hashtags'};
   var prompt=
-    'You are a social media expert for "Urban Leaf Sri Lanka", a premium plant business.' +
-    ' Write a social media caption for this plant listing.' +
-    ' Plant name: '+plant+'.' +
-    ' Details/condition: '+cond+'.' +
-    ' Platform: '+platInstr[S.platform] +
-    ' Tone instruction: '+toneInstr[S.tone] +
-    ' Hashtags needed: '+htStyles[S.hashtag]+'.' +
-    ' MANDATORY - include ALL of these in the caption:' +
-    ' 1) Island-wide courier delivery available across Sri Lanka.' +
-    ' 2) Payment by bank transfer ONLY. NO cash on delivery. NO COD.' +
-    ' 3) Tell buyers to inbox or DM for price and details.' +
-    ' 4) Use relevant plant emojis.' +
-    ' 5) Use ONLY the plant name and details provided. Do NOT invent or add any fake information.' +
-    ' Respond ONLY with valid JSON. No markdown, no extra text:' +
-    ' {"caption":"full caption text here","hashtags":"#tag1 #tag2 #tag3"}';
+    'You are social media expert for "Urban Leaf Sri Lanka" plant business.'+
+    ' Write caption for: Plant='+plant+', Details='+cond+'.'+
+    ' Platform: '+platMap[S.platform]+
+    ' Tone: '+toneMap[S.tone]+
+    ' Hashtags: '+htMap[S.hashtag]+'.'+
+    ' MUST INCLUDE: 1)Island-wide courier Sri Lanka. 2)Bank transfer only NO COD. 3)Inbox for details. 4)Plant emojis. 5)Use ONLY given plant info.'+
+    ' Reply ONLY valid JSON no markdown: {"caption":"text","hashtags":"#tag1 #tag2"}';
   try{
     var raw=await callAI(prompt);
     var clean=raw.replace(/\x60\x60\x60json/g,'').replace(/\x60\x60\x60/g,'').trim();
     var parsed=JSON.parse(clean);
     document.getElementById('captionOut').value=parsed.caption||'';
+    document.getElementById('captionResult').style.display='block';
     if(parsed.hashtags){document.getElementById('htOut').value=parsed.hashtags;document.getElementById('htSection').style.display='block';}
-  }catch(e){document.getElementById('captionOut').value='Error: '+e.message;}
+    else{document.getElementById('htSection').style.display='none';}
+  }catch(e){
+    document.getElementById('captionOut').value='Error: '+e.message;
+    document.getElementById('captionResult').style.display='block';
+    document.getElementById('htSection').style.display='none';
+  }
   finally{stopTips();document.getElementById('aiLoader').classList.remove('show');btn.disabled=false;btn.innerHTML='<i class="fa-solid fa-robot"></i> Generate with AI';}
 }
 
 async function regenHt(){
   var plant=document.getElementById('plantName').value.trim()||'Anthurium Plant';
   var el=document.getElementById('htOut');el.value='Regenerating...';
-  var htStyles={english:'15-20 relevant English hashtags',mixed:'mix of English and Sinhala transliterated hashtags',niche:'10 highly targeted niche plant hashtags'};
-  try{var raw=await callAI('Generate '+htStyles[S.hashtag]+' for a Sri Lankan plant seller posting about: '+plant+'. Return ONLY hashtags separated by spaces. No explanation or other text.');el.value=raw.trim();}
+  var htMap={english:'15-20 English hashtags',mixed:'English and Sinhala transliterated hashtags',niche:'10 niche plant hashtags'};
+  try{var raw=await callAI('Generate '+htMap[S.hashtag]+' for Sri Lankan plant seller: '+plant+'. ONLY hashtags separated by spaces.');el.value=raw.trim();}
   catch(e){el.value='Error: '+e.message;}
 }
 
@@ -526,10 +876,11 @@ function quickCaption(){
   document.getElementById('captionOut').value=
     '\uD83C\uDF38 '+plant.toUpperCase()+' \uD83C\uDF38\n\n'+
     '\uD83C\uDF31 '+cond+'\n'+
-    '\uD83D\uDE9A Island-wide Courier Available (\u0DC1\u0DCA\u200D\u0DBB\u0DD3 \u0DBD\u0D82\u0D9A\u0DCF\u0DC0 \u0DB4\u0DD4\u0DBB\u0DCF)\n'+
+    '\uD83D\uDE9A Island-wide Courier Available\n'+
     '\uD83D\uDCB3 Bank Transfer only. No COD.\n'+
     '\uD83D\uDCDE Inbox us for details.\n\n'+
     '#AnthuriumLovers #AnthuriumSriLanka #SriLankaPlants #'+tag;
+  document.getElementById('captionResult').style.display='block';
   document.getElementById('htSection').style.display='none';
 }
 
