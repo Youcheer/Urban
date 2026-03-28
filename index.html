@@ -1013,13 +1013,18 @@ async function saveImg(){
   // iOS Safari fix: a.click() download doesn't work on iPhone
   var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
   if(isIOS){
-    // Open image in new tab — user can long-press > "Add to Photos" to save
-    var win = window.open();
-    win.document.write('<html><head><title>Save Image</title><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:16px;font-family:sans-serif;color:#fff;">');
-    win.document.write('<p style="font-size:15px;opacity:0.8;">📥 Long-press the image below → <b>Add to Photos</b></p>');
-    win.document.write('<img src="'+dUrl+'" style="max-width:100%;border-radius:12px;">');
-    win.document.write('</body></html>');
-    win.document.close();
+    // Convert base64 dataURL to Blob, then open as blob URL — iOS can render & save this
+    var byteStr = atob(dUrl.split(',')[1]);
+    var ab = new ArrayBuffer(byteStr.length);
+    var ia = new Uint8Array(ab);
+    for(var i=0;i<byteStr.length;i++) ia[i]=byteStr.charCodeAt(i);
+    var blob = new Blob([ab],{type:'image/jpeg'});
+    var blobUrl = URL.createObjectURL(blob);
+    var win = window.open(blobUrl,'_blank');
+    if(!win){
+      // Fallback if popup blocked: navigate current tab
+      window.location.href = blobUrl;
+    }
   } else {
     var a=document.createElement('a');
     a.download='UL_Edited_'+Date.now()+'.jpg';a.href=dUrl;a.click();
