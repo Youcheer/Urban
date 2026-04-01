@@ -971,11 +971,15 @@ function copyText(id,btn){
 
 async function saveImg(){
   if(!S.base){alert('Upload photo first!');return;}
-  var sc=3; // Scale factor for HD saving
+
+  // Smart size cap: max 2048px on longest side — FB/IG quality, small file size
+  var MAX=2048;
+  var sw=S.base.naturalWidth, sh=S.base.naturalHeight;
+  var scale=Math.min(1, MAX/Math.max(sw,sh));
   var ocv=document.createElement('canvas');
-  ocv.width=S.base.naturalWidth*sc;ocv.height=S.base.naturalHeight*sc;
+  ocv.width=Math.round(sw*scale); ocv.height=Math.round(sh*scale);
   var octx=ocv.getContext('2d');
-  
+
   octx.filter='brightness('+S.bright+'%) contrast('+S.contrast+'%) saturate('+S.sat+'%)';
   octx.drawImage(S.base,0,0,ocv.width,ocv.height); octx.filter='none';
   if(S.warmth>0){octx.save();octx.globalAlpha=S.warmth/180;octx.fillStyle='#ff8800';octx.fillRect(0,0,ocv.width,ocv.height);octx.restore();}
@@ -996,7 +1000,7 @@ async function saveImg(){
     octx.fillStyle=S.color;octx.fillText(txt,0,0);octx.restore();
   }
 
-  var dUrl=ocv.toDataURL('image/jpeg',1.0);
+  var dUrl=ocv.toDataURL('image/jpeg',0.88); // 0.88 = best quality/size balance for FB
   try{
     if(typeof piexif!=='undefined'&&document.getElementById('metaAuthor')){
       var author=document.getElementById('metaAuthor').value||'Urban Leaf';
